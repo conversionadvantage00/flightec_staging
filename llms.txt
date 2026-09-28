@@ -1,0 +1,15 @@
+# FLIGHTEC
+
+> Southern Africa's specialist partner in mining and mineral exploration, combining unmanned aircraft systems (UAS) with applied geophysics.
+
+FLIGHTEC delivers airborne magnetic, radiometric and topographic surveys, plus borehole wireline logging and data processing, for mining and mineral exploration clients across Southern Africa. Head office in Windhoek, Namibia; Research & Development in Knysna, South Africa.
+
+## Services
+- Magnetic Surveys
+- Radiometric Surveys
+- Topographic Surveys
+- Wireline Logging (borehole)
+
+## Contact
+- General enquiries: info@flightec.co.za
+- Sales: nathan.archer@flightec.co.za

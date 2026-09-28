@@ -23,19 +23,6 @@
 <meta name="twitter:description" content="FLIGHTEC integrates unmanned aircraft systems with applied geophysics for mining and mineral exploration — magnetic and radiometric surveys, mapping, and turnkey UAS engineering.">
 <meta name="twitter:image" content="https://conversionadvantage00.github.io/flightec_staging/og-share.jpg">
 
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "FLIGHTEC",
-  "url": "https://conversionadvantage00.github.io/flightec_staging/",
-  "logo": "https://conversionadvantage00.github.io/flightec_staging/logo-square.png",
-  "description": "FLIGHTEC integrates unmanned aircraft systems with applied geophysics for mining and mineral exploration \u2014 magnetic and radiometric surveys, mapping, and turnkey UAS engineering.",
-  "sameAs": [
-    "https://www.linkedin.com/company/flightecza/"
-  ]
-}
-</script>
 <style>
 /* ===== THEME SWITCH — LIGHT (default) & DARK =====
    The <html> element always carries a data-theme attribute ("light" or
@@ -228,7 +215,7 @@ h2{font-size:clamp(1.9rem,3.2vw,2.7rem);margin-bottom:20px;}
 .nav{
   position:fixed;top:18px;left:20px;right:20px;z-index:100;
   max-width:1240px;margin:0 auto;
-  background:rgba(255,255,255,.82);
+  background:rgba(255,255,255,.92);
   -webkit-backdrop-filter:blur(18px) saturate(180%);
   backdrop-filter:blur(18px) saturate(180%);
   border:1px solid rgba(255,255,255,.4);
@@ -253,8 +240,8 @@ body.menu-open .nav{transform:translateY(0) !important;opacity:1 !important;}
 .brand img{height:28px;width:auto;}
 .nav-links{display:flex;gap:28px;margin-left:auto;}
 .nav-links a{
-  font-size:0.76rem;letter-spacing:0.05em;text-transform:uppercase;
-  color:rgba(28,29,33,.78);transition:color .2s;
+  font-size:0.8rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;
+  color:#16181c;transition:color .2s;
 }
 .nav-links a:hover{color:#3e80aa;}
 .nav .btn-nav{
@@ -335,16 +322,21 @@ body.menu-open .nav{z-index:201;}
   overflow:hidden;
   background:var(--hero-bg);
 }
-.hero-media{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;background-color:var(--bg);}
+.hero-media{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center bottom;background-color:var(--bg);}
 .hero-media-mobile{display:none;}
 @media (max-width:640px){
   .hero-media-desktop{display:none;}
   .hero-media-mobile{display:block;}
 }
 .hero-media::after{content:"";position:absolute;inset:0;background:var(--hero-scrim, transparent);}
+/* Pixel reveal: a canvas above the hero image (desktop or mobile) that
+   uncovers the survey data image in square blocks under the mouse, or under
+   the finger on touch screens. Hidden until the script switches it on. */
+.hero-reveal{position:absolute;inset:0;z-index:0;width:100%;height:100%;pointer-events:none;display:none;}
+.hero-reveal-on .hero-reveal{display:block;}
 .hero-inner{position:relative;z-index:2;max-width:900px;margin:0 auto;text-align:center;}
 .hero.has-media{color:#fff;}
-.hero.has-media .hero-media::after{background:linear-gradient(180deg,rgba(15,16,19,.275) 0%,rgba(15,16,19,.36) 55%,rgba(15,16,19,.44) 100%);}
+.hero.has-media .hero-media::after{background:none;}
 /* Soft fade at the very bottom of the hero into the section that follows
    (About Flightec) -- without this, the hero's photo/gradient ends in a
    hard, visible line where the next section's solid background begins.
@@ -356,10 +348,11 @@ body.menu-open .nav{z-index:201;}
   height:22%;min-height:140px;pointer-events:none;
   background:linear-gradient(180deg,rgba(10,11,13,0) 0%,var(--bg) 100%);
 }
-.hero.has-media .eyebrow{color:#3e80aa;}
+.hero.has-media .eyebrow{color:#fff;font-size:0.84rem;font-weight:700;letter-spacing:0.26em;text-shadow:0 1px 14px rgba(0,0,0,.55);}
 .hero.has-media .hero-title{color:#fff;}
 .hero.has-media .hero-title .accent{color:#3e80aa;}
-.hero.has-media .hero-sub{color:rgba(255,255,255,.82);}
+.hero.has-media .hero-sub{color:rgba(255,255,255,.86);}
+.hero.has-media .hero-title,.hero.has-media .hero-lead,.hero.has-media .hero-sub{text-shadow:0 2px 24px rgba(0,0,0,.45);}
 .hero.has-media .btn-ghost{border-color:rgba(255,255,255,.5);color:#fff;}
 .hero.has-media .btn-ghost:hover{border-color:#3e80aa;color:#3e80aa;}
 .hero-title{
@@ -1195,8 +1188,18 @@ html[data-theme="dark"] #bgFixed{
    their normal solid colours below instead of the semi-transparent
    "veil" desktop uses, since there's nothing left underneath for it to
    reveal. */
-@media (max-width:640px){
-  #bgFixed{display:none;}
+/* Mobile now shows the contours too, fixed like desktop. iOS ignores
+   background-attachment:fixed (and repaints badly with it), so on touch
+   screens the layer relies purely on position:fixed, is sized to the
+   *large* viewport (100lvh never changes as the address bar shows/hides,
+   so the image never re-scales mid-scroll) and sits on its own GPU layer. */
+@media (max-width:900px), (hover:none) and (pointer:coarse){
+  #bgFixed{
+    height:100vh;height:100lvh;
+    background-attachment:scroll;
+    transform:translateZ(0);will-change:transform;
+    -webkit-backface-visibility:hidden;backface-visibility:hidden;
+  }
 }
 
 .about,.pillars,.process,.operate,.cta,.services{background:var(--veil-bg) !important;}
@@ -1232,21 +1235,601 @@ html[data-theme="dark"] #bgFixed{
    through -- has nothing left to reveal and would just look like a
    slightly-off flat colour. Revert all of it back to each element's
    original solid colour on mobile only; desktop is unaffected. */
+/* (Mobile used to revert these to solid colours when it had no contour
+   layer; it now shows the contours like desktop, so the same veil applies.
+   Only the process step badges stay solid, as on desktop.) */
 @media (max-width:640px){
-  .about{background:var(--bg) !important;}
-  .pillars{background:var(--pillars-bg) !important;}
-  .process{background:var(--bg) !important;}
-  .operate{background:var(--pillars-bg) !important;}
-  .cta{background:var(--pillars-bg) !important;}
-  .services{background:var(--bg) !important;}
-  .svc,.svc-detailed{background:var(--bg-alt);}
-  .pillar{background:var(--pillars-bg);}
   .step-node{background:var(--panel);}
-  .contact-form-card{background:var(--panel);}
-  .location-map{background:var(--panel);}
+}
+
+/* ===== Finishing layer: accent light =====
+   One idea carried through the page: the brand blue behaves like a soft
+   light rather than a flat fill. It glows behind the two location maps,
+   catches the edge of cards under the cursor, and sweeps across buttons on
+   hover. Everything here is additive (no layout changes) and every piece
+   of looping or entrance motion switches off for visitors who prefer
+   reduced motion (see the block at the end). */
+:root{
+  --glow:62,128,170;              /* #3e80aa as RGB, for rgba() glows */
+  --ease-out:cubic-bezier(.16,1,.3,1);
+}
+
+/* Hero: one orchestrated entrance on load -- the copy settles into place
+   in a short stagger. The only entrance animation on the page. */
+@keyframes fl-rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.hero-inner > *{animation:fl-rise 1s var(--ease-out) both;}
+.hero-inner > :nth-child(1){animation-delay:.10s;}
+.hero-inner > :nth-child(2){animation-delay:.22s;}
+.hero-inner > :nth-child(3){animation-delay:.38s;}
+.hero-inner > :nth-child(4){animation-delay:.48s;}
+.hero-inner > :nth-child(5){animation-delay:.60s;}
+
+/* Scroll cue: a small point of light travels down the line. */
+.scroll-cue span{position:relative;overflow:hidden;}
+.scroll-cue span::after{
+  content:"";position:absolute;left:0;top:-40%;width:1px;height:40%;
+  background:linear-gradient(transparent,#9cc6e0,transparent);
+  animation:fl-drip 2.8s cubic-bezier(.45,0,.2,1) infinite;
+}
+@keyframes fl-drip{0%{top:-40%;opacity:0;}20%{opacity:1;}100%{top:100%;opacity:0;}}
+
+/* Buttons: a soft blue glow and a single pass of light on hover, a small
+   press state, and a clear keyboard focus ring. */
+.btn-primary,.nav .btn-nav{position:relative;overflow:hidden;isolation:isolate;}
+.btn-primary::after,.nav .btn-nav::after{
+  content:"";position:absolute;top:0;bottom:0;left:-60%;width:45%;z-index:-1;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent);
+  transform:skewX(-18deg);pointer-events:none;
+  transition:left .7s var(--ease-out);
+}
+.btn-primary:hover,.nav .btn-nav:hover{
+  background:#4689b4;
+  box-shadow:0 10px 28px -10px rgba(var(--glow),.75),0 0 0 1px rgba(var(--glow),.35);
+}
+.btn-primary:hover::after,.nav .btn-nav:hover::after{left:120%;}
+.btn:active{transform:translateY(1px);}
+.btn-ghost:hover{box-shadow:0 0 0 1px rgba(var(--glow),.25) inset,0 8px 24px -12px rgba(var(--glow),.6);}
+a:focus-visible,button:focus-visible,.btn:focus-visible{
+  outline:2px solid #6aa6cc;outline-offset:3px;
+}
+
+/* Nav links: a fine accent underline that draws out from the centre. */
+.nav-links a{position:relative;}
+.nav-links a::after{
+  content:"";position:absolute;left:50%;right:50%;bottom:-6px;height:1px;
+  background:#3e80aa;transition:left .35s var(--ease-out),right .35s var(--ease-out);
+}
+.nav-links a:hover::after{left:0;right:0;}
+
+/* Cards: the edge warms to the accent and a faint spotlight follows the
+   cursor (position fed in by the script as --mx / --my). Desktop only. */
+.pillar,.location-map,.contact-form-card{position:relative;isolation:isolate;}
+@media (hover:hover) and (pointer:fine){
+  .pillar::before,.location-map::before,.contact-form-card::before{
+    content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;
+    background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(var(--glow),.10),transparent 60%);
+    opacity:0;transition:opacity .5s ease;
+  }
+  .pillar:hover::before,.location-map:hover::before,.contact-form-card:hover::before{opacity:1;}
+  .pillar{transition:border-color .5s ease;}
+  .pillar:hover{border-color:rgba(var(--glow),.38);}
+  .svc{transition:background-color .45s ease,transform .35s ease,box-shadow .35s ease,border-color .35s ease;}
+  .svc:hover{
+    border-color:rgba(var(--glow),.45);
+    box-shadow:0 24px 48px rgba(0,0,0,.3),0 20px 60px -20px rgba(var(--glow),.35);
+  }
+}
+.svc-more span{display:inline-block;}
+.svc-more:hover span,.svc:hover .svc-more span{transform:translateX(3px);}
+
+/* Contact form: a lit top edge and focus rings that glow rather than
+   just change colour. */
+.contact-form-card{
+  box-shadow:0 40px 90px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.06);
+}
+.form-row input,.form-row textarea,.multiselect-toggle{transition:border-color .25s ease,box-shadow .25s ease;}
+.form-row input:focus,.form-row textarea:focus,.form-row select:focus,
+.multiselect-toggle:focus,.multiselect.is-open .multiselect-toggle{
+  box-shadow:0 0 0 4px rgba(var(--glow),.16);
+}
+
+/* Process: the active step's halo is a touch softer and wider. */
+.step.is-active .step-node{
+  box-shadow:0 0 0 8px rgba(var(--glow),.14),0 0 32px rgba(var(--glow),.35);
+}
+
+/* Location maps: each card breathes a slow blue glow (the two offset so
+   they never pulse in step), the map picks up a faint inner blue edge,
+   and the office tag carries a small live beacon. Hover brings the glow
+   up and lifts the card slightly. */
+.location-map{
+  transition:transform .6s var(--ease-out),box-shadow .6s ease;
+}
+.location-map::after{
+  content:"";position:absolute;inset:-1px;border-radius:inherit;z-index:-2;pointer-events:none;
+  box-shadow:0 0 46px rgba(var(--glow),.28),0 0 110px rgba(var(--glow),.12);
+  opacity:.35;
+  animation:fl-breathe 6s ease-in-out infinite;
+}
+.location-map + .location-map::after{animation-delay:-3s;}
+@keyframes fl-breathe{0%,100%{opacity:.3;}50%{opacity:.85;}}
+@media (hover:hover) and (pointer:fine){
+  .location-map:hover{transform:translateY(-4px);}
+  .location-map:hover{box-shadow:0 36px 80px rgba(0,0,0,.3),0 0 60px rgba(var(--glow),.22);}
+}
+.location-map-tag{display:inline-flex;align-items:center;gap:8px;}
+.location-map-tag::before{
+  content:"";width:6px;height:6px;border-radius:50%;flex:none;
+  background:#5fa3cf;
+  box-shadow:0 0 0 0 rgba(var(--glow),.6);
+  animation:fl-beacon 2.6s ease-out infinite;
+}
+.location-map + .location-map .location-map-tag::before{animation-delay:-1.3s;}
+@keyframes fl-beacon{
+  0%{box-shadow:0 0 0 0 rgba(var(--glow),.55);}
+  70%{box-shadow:0 0 0 8px rgba(var(--glow),0);}
+  100%{box-shadow:0 0 0 0 rgba(var(--glow),0);}
+}
+
+/* Footer social icons pick up the same glow. */
+.footer-social-link{transition:color .25s ease,border-color .25s ease,box-shadow .25s ease;}
+.footer-social-link:hover{box-shadow:0 0 18px rgba(var(--glow),.35);}
+
+/* Scrollbar tuned to the dark palette (desktop browsers that support it). */
+html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
+::-webkit-scrollbar{width:10px;}
+::-webkit-scrollbar-track{background:#0a0b0d;}
+::-webkit-scrollbar-thumb{background:#262a31;border-radius:10px;border:2px solid #0a0b0d;}
+::-webkit-scrollbar-thumb:hover{background:#3e80aa;}
+
+@media (prefers-reduced-motion:reduce){
+  .hero-inner > *,.scroll-cue span::after,.location-map::after,.location-map-tag::before{animation:none;}
+  .location-map::after{opacity:.6;}
+  .btn-primary::after,.nav .btn-nav::after{display:none;}
+  .location-map:hover{transform:none;}
+}
+
+/* ===== Service popups, redesigned =====
+   Treated like an instrument/report sheet rather than a web page in a box:
+   a clearly elevated panel over a deeper backdrop, an editorial header
+   (title left, intro right), the survey images presented as figure plates
+   on a fine survey grid with registration marks, and a fixed action bar
+   so the call to action always sits with its closing line. */
+.svc-modal{
+  background:rgba(3,4,6,.74);
+  -webkit-backdrop-filter:blur(12px) saturate(120%);
+  backdrop-filter:blur(12px) saturate(120%);
+  padding:32px;
+}
+.svc-modal-panel{
+  display:flex;flex-direction:column;
+  width:min(1240px,100%);height:min(88vh,1000px);
+  background:linear-gradient(180deg,#171a1f 0%,#111317 38%,#0f1114 100%);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  box-shadow:0 60px 140px rgba(0,0,0,.65),0 18px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.06);
+  transform:translateY(18px) scale(.985);
+  transition:transform .6s var(--ease-out),opacity .4s ease;
+}
+.svc-modal.is-open .svc-modal-panel{
+  transform:none;
+  transition:transform .6s var(--ease-out) .04s,opacity .4s ease .04s;
+}
+.svc-modal-scroll{position:relative;inset:auto;flex:1 1 auto;min-height:0;overflow-y:auto;border-radius:18px 18px 0 0;overscroll-behavior:contain;}
+.svc-modal-sheet{background:transparent;}
+.svc-modal-body{max-width:none;padding:64px 72px 56px;}
+
+.svc-modal-close{
+  top:22px;right:22px;width:42px;height:42px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:none;color:rgba(255,255,255,.8);
+  transition:background .25s ease,border-color .25s ease,color .25s ease,transform .45s var(--ease-out);
+}
+.svc-modal-close:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.28);color:#fff;transform:rotate(90deg);}
+
+/* Header: title block and intro side by side, closed off by a hairline. */
+.svc-modal-head{
+  display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);
+  gap:64px;align-items:end;
+  padding-bottom:40px;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.svc-modal-eyebrow{margin-bottom:16px;}
+.svc-modal-body h2{
+  font-size:clamp(2.2rem,3.8vw,3.4rem);line-height:1.02;letter-spacing:-0.01em;
+  margin-bottom:0;color:var(--ink);
+}
+.svc-modal-lead p{
+  font-size:1.06rem;line-height:1.7;color:#b9b4ab;max-width:58ch;margin:0;
+}
+.svc-modal-lead p + p{margin-top:14px;}
+
+/* Figures: numbered plates on a fine survey grid. */
+.svc-modal-figures{margin-top:44px;}
+.svc-modal-figures .svc-compare{margin-top:0;display:grid;gap:28px;grid-template-columns:repeat(2,minmax(0,1fr));}
+.svc-modal-figures .svc-compare[data-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr));}
+.svc-modal-figures .svc-compare[data-count="4"]{grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;}
+.svc-fig-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;}
+.svc-fig-num{
+  font-size:0.78rem;font-weight:600;letter-spacing:0.08em;color:#3e80aa;
+  font-variant-numeric:tabular-nums;
+}
+.svc-modal-figures .svc-compare-label{
+  margin:0;font-size:0.92rem;font-weight:500;letter-spacing:0.01em;color:var(--ink);
+}
+.svc-plate{
+  position:relative;aspect-ratio:4/3;overflow:hidden;isolation:isolate;
+  border-radius:12px;
+  background:radial-gradient(ellipse 80% 70% at 50% 45%,#181c22 0%,#0d0f12 78%);
+  border:1px solid rgba(255,255,255,.06);
+  transition:border-color .5s ease;
+}
+.svc-modal-figures .svc-compare[data-count="4"] .svc-plate{aspect-ratio:1/1;}
+.svc-plate::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:40px 40px;background-position:center center;
+  -webkit-mask-image:radial-gradient(ellipse 75% 70% at 50% 50%,#000 30%,transparent 100%);
+  mask-image:radial-gradient(ellipse 75% 70% at 50% 50%,#000 30%,transparent 100%);
+}
+.svc-plate::after{
+  --tick:rgba(255,255,255,.3);
+  content:"";position:absolute;inset:12px;z-index:2;pointer-events:none;
+  background:
+    linear-gradient(var(--tick),var(--tick)) left top/12px 1px,
+    linear-gradient(var(--tick),var(--tick)) left top/1px 12px,
+    linear-gradient(var(--tick),var(--tick)) right top/12px 1px,
+    linear-gradient(var(--tick),var(--tick)) right top/1px 12px,
+    linear-gradient(var(--tick),var(--tick)) left bottom/12px 1px,
+    linear-gradient(var(--tick),var(--tick)) left bottom/1px 12px,
+    linear-gradient(var(--tick),var(--tick)) right bottom/12px 1px,
+    linear-gradient(var(--tick),var(--tick)) right bottom/1px 12px;
+  background-repeat:no-repeat;
+}
+.svc-modal-figures .svc-compare-media{
+  position:absolute;inset:8% 9%;z-index:1;width:auto;aspect-ratio:auto;border-radius:0;
+  background-size:contain;background-repeat:no-repeat;background-position:center;
+  filter:drop-shadow(0 18px 28px rgba(0,0,0,.55));
+  transition:transform 1.2s var(--ease-out);
+}
+@media (hover:hover) and (pointer:fine){
+  .svc-compare-item:hover .svc-plate{border-color:rgba(255,255,255,.14);}
+  .svc-compare-item:hover .svc-compare-media{transform:scale(1.025);}
+}
+.svc-compare-item.is-flightec .svc-plate{border-color:rgba(62,128,170,.4);}
+.svc-compare-item.is-flightec .svc-plate::after{--tick:rgba(111,168,204,.75);}
+.svc-modal-figures .svc-compare-item .svc-compare-desc{
+  margin:14px 0 0;font-size:0.9rem;line-height:1.6;color:var(--ink-dim);max-width:52ch;
+}
+
+/* Figures settle in one after another as the panel opens. */
+.svc-modal.is-open .svc-modal-head,
+.svc-modal.is-open .svc-compare-item{animation:fl-rise .8s var(--ease-out) both;}
+.svc-modal.is-open .svc-modal-head{animation-delay:.12s;}
+.svc-modal.is-open .svc-compare-item{animation-delay:calc(.22s + var(--i,0) * .07s);}
+
+/* Action bar: always visible at the foot of the panel. */
+.svc-modal-bar{
+  flex:none;display:flex;align-items:center;justify-content:space-between;gap:32px;
+  padding:20px 72px;
+  background:rgba(12,14,17,.9);
+  border-top:1px solid rgba(255,255,255,.08);
+  border-radius:0 0 18px 18px;
+}
+.svc-modal-bar-text{
+  margin:0;font-size:1.02rem;font-weight:500;color:var(--ink);letter-spacing:0.005em;
+}
+.svc-modal-bar-actions{display:flex;align-items:center;gap:12px;margin-left:auto;flex:none;}
+.svc-modal-bar .btn{padding:13px 24px;font-size:0.8rem;border-radius:8px;}
+.svc-modal-cta{margin-top:0;max-width:none;white-space:nowrap;}
+.svc-modal-dismiss{
+  font-family:inherit;cursor:pointer;background:transparent;
+  color:var(--ink);border:1px solid rgba(255,255,255,.18);
+}
+.svc-modal-dismiss:hover{border-color:rgba(255,255,255,.4);color:#fff;box-shadow:none;}
+.svc-modal-body .svc-modal-eyebrow{color:#3e80aa;font-size:0.72rem;line-height:1.4;margin-bottom:18px;}
+
+@media (max-width:1100px){
+  .svc-modal-figures .svc-compare[data-count="4"]{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .svc-modal-body{padding:56px 48px 48px;}
+  .svc-modal-bar{padding:18px 48px;}
+}
+@media (max-width:860px){
+  .svc-modal-head{grid-template-columns:1fr;gap:20px;align-items:start;}
+  .svc-modal-bar-text{display:none;}
+  .svc-modal-dismiss{display:none;}
+  .svc-modal-bar-actions{flex:1;}
+  .svc-modal-bar .btn{flex:1;}
+}
+/* Phones: a bottom sheet that slides up, near full height. */
+@media (max-width:640px){
+  .svc-modal{padding:0;align-items:flex-end;}
+  .svc-modal-panel{
+    width:100%;height:calc(100% - 20px);height:calc(100dvh - 20px);
+    border-radius:20px 20px 0 0;border-bottom:none;
+    transform:translateY(40px);
+  }
+  .svc-modal-scroll{border-radius:20px 20px 0 0;}
+  .svc-modal-body{padding:56px 22px 32px;}
+  .svc-modal-close{top:14px;right:14px;}
+  .svc-modal-figures{margin-top:32px;}
+  .svc-modal-figures .svc-compare{grid-template-columns:1fr;gap:32px;}
+  .svc-modal-figures .svc-compare[data-count="4"]{grid-template-columns:1fr 1fr;gap:18px 12px;}
+  .svc-modal-figures .svc-compare[data-count="4"] .svc-compare-desc{display:none;}
+  .svc-modal-bar{padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));border-radius:0;}
+}
+@media (prefers-reduced-motion:reduce){
+  .svc-modal.is-open .svc-modal-head,.svc-modal.is-open .svc-compare-item{animation:none;}
+  .svc-modal-panel{transform:none;}
+}
+
+/* ===== Hero: eyebrow and "Beyond." =====
+   Eyebrow: the letters draw in from wide tracking on load, fine blue rules
+   extend out either side, then a soft band of light passes across the
+   words every few seconds. "Beyond.": arrives a beat after the rest of the
+   headline, then carries the same slow pass of light in a lighter blue
+   with a faint glow, a quiet nod to "further than you can see". */
+.hero-eyebrow{display:flex;align-items:center;justify-content:center;gap:20px;}
+.hero-eyebrow::before,.hero-eyebrow::after{
+  content:"";height:1px;width:44px;flex:none;
+  /* Layer 1 is a small glint of light; layer 2 is the rule itself. */
+  background:
+    linear-gradient(90deg,rgba(230,244,255,0),rgba(230,244,255,.95),rgba(230,244,255,0)) -20px 0/18px 100% no-repeat,
+    linear-gradient(90deg,rgba(62,128,170,0),#3e80aa);
+  filter:drop-shadow(0 0 2px rgba(143,196,230,.55));
+  transform:scaleX(0);transform-origin:right center;
+  /* The glint crosses the left rule into the text just before the band of
+     light sweeps the words, and leaves along the right rule as it exits,
+     so one pass of light appears to travel the whole line. */
+  animation:fl-rule 1.1s var(--ease-out) .95s forwards,fl-glint 9s cubic-bezier(.45,0,.3,1) 1.75s infinite;
+}
+.hero-eyebrow::after{
+  background:
+    linear-gradient(90deg,rgba(230,244,255,0),rgba(230,244,255,.95),rgba(230,244,255,0)) -20px 0/18px 100% no-repeat,
+    linear-gradient(90deg,#3e80aa,rgba(62,128,170,0));
+  transform-origin:left center;
+  animation-delay:.95s,4.85s;
+}
+@keyframes fl-glint{
+  0%{background-position:-20px 0,0 0;}
+  8%{background-position:46px 0,0 0;}
+  100%{background-position:46px 0,0 0;}
+}
+@keyframes fl-rule{to{transform:scaleX(1);}}
+
+.hero-eyebrow-text{
+  display:inline-block;
+  background:linear-gradient(100deg,#fff 0%,#fff 42%,#9fcbe8 50%,#fff 58%,#fff 100%);
+  background-size:260% 100%;background-position:120% 0;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  filter:drop-shadow(0 1px 10px rgba(0,0,0,.5));
+  animation:
+    fl-track 1.6s var(--ease-out) .1s both,
+    fl-sheen 9s ease-in-out 2.4s infinite;
+}
+.hero.has-media .hero-eyebrow{text-shadow:none;}
+@keyframes fl-track{
+  from{letter-spacing:.55em;opacity:0;filter:blur(6px) drop-shadow(0 1px 10px rgba(0,0,0,.5));}
+  to{letter-spacing:.26em;opacity:1;filter:blur(0) drop-shadow(0 1px 10px rgba(0,0,0,.5));}
+}
+@keyframes fl-sheen{
+  0%{background-position:120% 0;}
+  30%{background-position:-20% 0;}
+  100%{background-position:-20% 0;}
+}
+
+.hero.has-media .hero-title .accent{
+  display:inline-block;
+  padding-bottom:.14em;margin-bottom:-.14em;   /* keeps the "y" descender inside the painted area */
+  background:linear-gradient(100deg,#3e80aa 0%,#3e80aa 40%,#8ec4e6 50%,#3e80aa 60%,#3e80aa 100%);
+  background-size:260% 100%;background-position:120% 0;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  text-shadow:none;
+  animation:
+    fl-beyond 1.5s var(--ease-out) .75s both,
+    fl-sheen 9s ease-in-out 3.2s infinite,
+    fl-halo 9s ease-in-out 3.2s infinite;
+}
+@keyframes fl-beyond{
+  from{opacity:0;transform:translateY(.28em);filter:blur(8px) drop-shadow(0 0 0 rgba(62,128,170,0));}
+  to{opacity:1;transform:none;filter:blur(0) drop-shadow(0 0 18px rgba(62,128,170,.22));}
+}
+@keyframes fl-halo{
+  0%,100%{filter:drop-shadow(0 0 18px rgba(62,128,170,.22));}
+  18%{filter:drop-shadow(0 0 26px rgba(90,160,205,.42));}
+  40%{filter:drop-shadow(0 0 18px rgba(62,128,170,.22));}
+}
+
+@media (max-width:640px){
+  .hero-eyebrow::before,.hero-eyebrow::after{display:none;}
+}
+@media (prefers-reduced-motion:reduce){
+  .hero-eyebrow-text,.hero.has-media .hero-title .accent{animation:none;}
+  .hero-eyebrow::before,.hero-eyebrow::after{animation:none;transform:none;}
+  .hero.has-media .hero-title .accent{filter:drop-shadow(0 0 18px rgba(62,128,170,.22));}
+}
+
+/* ===== Full-size figure viewer =====
+   Clicking or tapping a figure in a service popup opens the survey image
+   at full size over everything, on the same dark survey-grid ground as the
+   figure plates, with its number and label underneath. */
+.svc-plate{cursor:zoom-in;}
+.svc-plate:focus-visible{outline:2px solid #6aa6cc;outline-offset:3px;}
+.svc-plate-zoom{
+  position:absolute;top:18px;right:18px;z-index:3;
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(10,12,15,.72);border:1px solid rgba(255,255,255,.16);color:#fff;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  opacity:0;transform:scale(.9);
+  transition:opacity .3s ease,transform .4s var(--ease-out),border-color .3s ease;
+  pointer-events:none;
+}
+.svc-compare-item:hover .svc-plate-zoom,.svc-plate:focus-visible .svc-plate-zoom{opacity:1;transform:none;}
+@media (hover:none){ .svc-plate-zoom{opacity:.85;transform:none;} }
+
+.img-lightbox{
+  z-index:400;flex-direction:column;gap:22px;padding:72px 48px 36px;
+  background:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px) center/48px 48px,
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px) center/48px 48px,
+    rgba(4,5,7,.95);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  opacity:0;
+}
+.img-lightbox.is-open{animation:fl-fade .35s ease forwards;}
+@keyframes fl-fade{to{opacity:1;}}
+.img-lightbox img{
+  flex:1 1 auto;min-height:0;width:auto;height:auto;
+  max-width:100%;max-height:100%;object-fit:contain;
+  border-radius:0;box-shadow:none;
+  filter:drop-shadow(0 30px 50px rgba(0,0,0,.6));
+  animation:fl-zoom .6s var(--ease-out) both;
+}
+@keyframes fl-zoom{from{opacity:0;transform:scale(.96);}to{opacity:1;transform:none;}}
+.img-lightbox-caption{
+  flex:none;display:flex;align-items:baseline;gap:12px;margin:0;
+  font-size:0.95rem;font-weight:500;color:#fff;letter-spacing:0.01em;text-align:center;
+}
+.img-lightbox-caption .svc-fig-num{font-size:0.8rem;}
+.img-lightbox-close{
+  top:22px;right:22px;width:42px;height:42px;font-size:0;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);
+  transition:background .25s ease,border-color .25s ease,transform .45s var(--ease-out);
+}
+.img-lightbox-close:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.3);transform:rotate(90deg);}
+@media (max-width:640px){
+  .img-lightbox{padding:64px 12px calc(24px + env(safe-area-inset-bottom,0px));gap:16px;}
+  .img-lightbox-close{top:12px;right:12px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .img-lightbox.is-open{animation:none;opacity:1;}
+  .img-lightbox img{animation:none;}
+}
+
+/* "Below" (wireline) cards: the log plots are light, so their scrim is
+   darkest at the top where the title and copy sit, easing off towards the
+   bottom so the log tracks still read. The plots are also calmed slightly
+   so they sit with the dark survey imagery on the "Above" cards. */
+.svc-group-below .svc-media{
+  filter:brightness(.82) saturate(.95);
+  opacity:1;transform:scale(1);
+  transition:opacity .45s ease,transform 1.1s var(--ease-out);
+}
+.svc-group-below .svc-media::after{
+  background:linear-gradient(180deg,rgba(12,13,16,.92) 0%,rgba(12,13,16,.78) 42%,rgba(12,13,16,.5) 100%);
+}
+/* Extra shade that fades in on hover (desktop) or when the card is the
+   one in view (mobile), so the copy reads cleanly while the image zooms. */
+.svc-group-below .svc-media::before{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(10,11,14,.55) 0%,rgba(10,11,14,.45) 50%,rgba(10,11,14,.35) 100%);
+  opacity:0;transition:opacity .5s ease;
+}
+.svc-group-below .svc-media::after{z-index:0;}
+.svc-group-below .svc h3{color:#fff;}
+.svc-group-below .svc p{color:rgba(255,255,255,.82);}
+.svc-group-below .svc:hover .svc-media,
+.svc-group-below .svc.is-active .svc-media{transform:scale(1.07);}
+.svc-group-below .svc:hover .svc-media::before,
+.svc-group-below .svc.is-active .svc-media::before{opacity:1;}
+.svc-group-below .svc:hover p,
+.svc-group-below .svc.is-active p{color:rgba(255,255,255,.9);}
+@media (prefers-reduced-motion:reduce){
+  .svc-group-below .svc:hover .svc-media,
+  .svc-group-below .svc.is-active .svc-media{transform:none;}
+}
+
+/* Where We Operate: a single Africa map with both offices pinned, and the
+   two offices listed underneath, divided by a hairline. */
+.location-maps--single{display:block;max-width:1040px;margin-left:auto;margin-right:auto;}
+.location-map-canvas--africa{aspect-ratio:16/10;background:#1b1e23;--mymaps-bar:70px;}
+/* Google My Maps embeds carry a title bar (map name, owner, share and
+   full-screen buttons) that can't be switched off. The map is shifted up
+   inside its rounded frame by the bar's height so only the map itself is
+   visible; Google's attribution and terms along the bottom stay in view.
+   If a sliver of the bar ever shows, raise --mymaps-bar a few pixels. */
+.location-map-canvas--africa iframe{top:calc(var(--mymaps-bar) * -1);height:calc(100% + var(--mymaps-bar));}
+.location-offices{
+  display:grid;grid-template-columns:1fr 1fr;
+  margin-top:24px;
+}
+.location-office{text-align:center;padding:6px 16px;}
+.location-office + .location-office{border-left:1px solid rgba(255,255,255,.08);}
+.location-office + .location-office .location-map-tag::before{animation-delay:-1.3s;}
+@media (max-width:900px){
+  .location-maps--single{max-width:none;}
+}
+@media (max-width:640px){
+  .location-maps--single .location-map{padding:14px 14px 22px;}
+  .location-map-canvas--africa{aspect-ratio:4/5;--mymaps-bar:92px;}
+  .location-offices{grid-template-columns:1fr;margin-top:18px;}
+  .location-office{padding:16px 8px;}
+  .location-office + .location-office{border-left:none;border-top:1px solid rgba(255,255,255,.08);}
+}
+
+/* "Above" cards now match the wireline cards: the survey image stays on
+   hover (no more reverting to the plain panel), zooms in slightly, and an
+   extra layer of shade fades in so the copy and "Learn More" read cleanly.
+   On mobile the card in view gets the same treatment. */
+.svc-group-above .svc-media{transition:opacity .45s ease,transform 1.1s var(--ease-out);}
+.svc-group-above .svc-media::after{z-index:0;}
+.svc-group-above .svc-media::before{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(10,11,14,.6) 0%,rgba(10,11,14,.5) 50%,rgba(10,11,14,.4) 100%);
+  opacity:0;transition:opacity .5s ease;
+}
+.svc-group-above .svc:hover .svc-media,
+.svc-group-above .svc.is-active .svc-media{opacity:1;transform:scale(1.07);}
+.svc-group-above .svc:hover .svc-media::before,
+.svc-group-above .svc.is-active .svc-media::before{opacity:1;}
+.svc-group-above .svc:hover h3{color:#fff;}
+.svc-group-above .svc:hover p{color:rgba(255,255,255,.9);}
+.svc-group-above .svc:hover .svc-more{color:#6aa6cc;}
+@media (prefers-reduced-motion:reduce){
+  .svc-group-above .svc:hover .svc-media,
+  .svc-group-above .svc.is-active .svc-media{transform:none;}
+}
+
+/* About: the hidden rollover images and their dark shade are taken fully
+   out of rendering while inactive (not just transparent), so mobile Safari
+   never paints or composites them over the contour texture behind the
+   section. They switch back on instantly when a row is hovered/tapped. */
+.about-media,.about-scrim{visibility:hidden;}
+.about-media{transition:opacity .6s ease,transform 1.2s ease,visibility 0s linear .6s;}
+.about-scrim{transition:opacity .5s ease,visibility 0s linear .5s;}
+.about:has(.tag:hover) .about-scrim,.about[data-active-slot] .about-scrim,
+.about:has(.tag[data-slot="about-aerial"]:hover) .about-media[data-media="about-aerial"],
+.about:has(.tag[data-slot="about-geophysics"]:hover) .about-media[data-media="about-geophysics"],
+.about:has(.tag[data-slot="about-data"]:hover) .about-media[data-media="about-data"],
+.about[data-active-slot="about-aerial"] .about-media[data-media="about-aerial"],
+.about[data-active-slot="about-geophysics"] .about-media[data-media="about-geophysics"],
+.about[data-active-slot="about-data"] .about-media[data-media="about-data"]{
+  visibility:visible;transition-delay:0s;
+}
+@media (max-width:900px), (hover:none) and (pointer:coarse){
+  .about{isolation:auto;}
+  .about-grid{position:relative;z-index:2;}
 }
 
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "FLIGHTEC",
+  "url": "https://conversionadvantage00.github.io/flightec_staging/",
+  "logo": "https://conversionadvantage00.github.io/flightec_staging/logo-square.png",
+  "description": "FLIGHTEC integrates unmanned aircraft systems with applied geophysics for mining and mineral exploration \u2014 magnetic and radiometric surveys, mapping, and turnkey UAS engineering.",
+  "sameAs": [
+    "https://www.linkedin.com/company/flightecza/"
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -1266,11 +1849,12 @@ html[data-theme="dark"] #bgFixed{
 </div>
 
 <main id="top">
-  <section class="hero has-media">
+  <section class="hero has-media" data-cell-size="16" data-radius="3" data-hold="150" data-fade="200" data-jitter="1" data-hero-reveal="img/hero-reveal.webp">
     <div class="hero-media hero-media-desktop" style="background-image:url('img/hero.jpg')" data-slot-media="hero"></div>
     <div class="hero-media hero-media-mobile" style="background-image:url('img/hero-mobile.jpg')" data-slot-media="hero-mobile"></div>
+    <canvas class="hero-reveal" aria-hidden="true"></canvas>
     <div class="hero-inner">
-      <p class="eyebrow">Precise data for mining and mineral exploration.</p>
+      <p class="eyebrow hero-eyebrow"><span class="hero-eyebrow-text">Precise data for mining and mineral exploration.</span></p>
       <h1 class="hero-title">Above.<br>Below.<br><span class="accent">Beyond.</span></h1>
       <p class="hero-lead">The specialist exploration partner across Southern Africa.</p>
       <p class="hero-sub">From airborne magnetic, radiometric, and topographic surveys to borehole wireline logging and data processing, Flightec delivers higher resolution to exploration teams to define their targets and lower uncertainty where it matters.</p>
@@ -1366,19 +1950,19 @@ html[data-theme="dark"] #bgFixed{
       <p class="svc-group-intro">Add direct measurements from boreholes to further develop the understanding from surface surveys and drilling. Flightec's wireline logging services provide continuous, depth-referenced data that supports geological correlations, structural interpretations and better-informed exploration decision making.</p>
       <div class="svc-grid">
         <div class="svc" data-slot="svc-optical">
-      <div class="svc-media" style="background-image:linear-gradient(160deg,#242527,#4d4e51)" data-slot-media="svc-optical"></div>
+      <div class="svc-media" data-bg="img/svc-optical.jpg" data-slot-media="svc-optical"></div>
       <h3>Optical Borehole Imaging</h3>
       <p>Add continuous structural context to the drilling record.</p>
       
     </div>
 <div class="svc" data-slot="svc-susceptibility">
-      <div class="svc-media" style="background-image:linear-gradient(160deg,#2c2822,#5a5346)" data-slot-media="svc-susceptibility"></div>
+      <div class="svc-media" data-bg="img/svc-susceptibility.jpg" data-slot-media="svc-susceptibility"></div>
       <h3>Magnetic Susceptibility Logging</h3>
       <p>Connect surface magnetic patterns with measurements from inside the borehole.</p>
       
     </div>
 <div class="svc" data-slot="svc-gamma">
-      <div class="svc-media" style="background-image:linear-gradient(160deg,#302a22,#5f564a)" data-slot-media="svc-gamma"></div>
+      <div class="svc-media" data-bg="img/svc-gamma.jpg" data-slot-media="svc-gamma"></div>
       <h3>Natural Gamma Ray Logging</h3>
       <p>Add another layer of depth-referenced information to the geological model.</p>
       
@@ -1512,31 +2096,29 @@ html[data-theme="dark"] #bgFixed{
       </div>
     </div>
 
-    <!-- Two embedded Google Maps iframes marking Flightec's operating
-         base towns, side by side on desktop and stacked on mobile. -->
+    <!-- One embedded Google My Maps view of Africa with pins for both
+         offices (Windhoek and Knysna), with the two offices labelled
+         underneath. The map's pins and default view are set in My Maps. -->
     <div class="section-inner">
       <div class="location-maps-head">
         <h3 class="location-maps-heading">We Operate From</h3>
       </div>
-      <div class="location-maps">
+      <div class="location-maps location-maps--single">
         <div class="location-map">
-          <div class="location-map-canvas location-map-canvas--iframe">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d117901.12654894678!2d17.062226!3d-22.56375625!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1c0b1b5cb30c01ed%3A0xe4b84940cc445d3b!2sWindhoek%2C%20Namibia!5e0!3m2!1sen!2sza!4v1789982390678!5m2!1sen!2sza" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          <div class="location-map-canvas location-map-canvas--iframe location-map-canvas--africa">
+            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1Z95qpkCpU2lOFhOuaEusRIHIJ5pFSSo&ehbc=2E312F&ll=-24,21&z=4" title="Map of Africa showing Flightec's offices in Windhoek and Knysna" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
           </div>
-          <div class="location-map-label">
-            <span class="location-map-place">Windhoek</span>
-            <span class="location-map-region">Namibia</span>
-            <span class="location-map-tag">Head Office</span>
-          </div>
-        </div>
-        <div class="location-map">
-          <div class="location-map-canvas location-map-canvas--iframe">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d52898.95443556191!2d23.001217121340872!3d-34.039134179254674!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1e78ea4096010cd9%3A0xbe2ab9e17550cecd!2sKnysna!5e0!3m2!1sen!2sza!4v1789982520020!5m2!1sen!2sza" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-          </div>
-          <div class="location-map-label">
-            <span class="location-map-place">Knysna</span>
-            <span class="location-map-region">Western Cape, South Africa</span>
-            <span class="location-map-tag">Research &amp; Development</span>
+          <div class="location-offices">
+            <div class="location-office">
+              <span class="location-map-place">Windhoek</span>
+              <span class="location-map-region">Namibia</span>
+              <span class="location-map-tag">Head Office</span>
+            </div>
+            <div class="location-office">
+              <span class="location-map-place">Knysna</span>
+              <span class="location-map-region">Western Cape, South Africa</span>
+              <span class="location-map-tag">Research &amp; Development</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1580,23 +2162,36 @@ html[data-theme="dark"] #bgFixed{
     <p>Powered by <a href="https://conversionadvantagemicrosites.co.za/" target="_blank" rel="noopener">CA Microsites</a>, a <a href="https://conversionadvantage.co.za/" target="_blank" rel="noopener">Conversion Advantage</a> platform @ 2026</p>
   </div>
 
-<div class="svc-modal" id="svcModal" role="dialog" aria-modal="true" aria-hidden="true">
+<div class="svc-modal" id="svcModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="svcModalTitle">
   <div class="svc-modal-panel">
-    <button type="button" class="svc-modal-close" id="svcModalClose" aria-label="Close">&times;</button>
+    <button type="button" class="svc-modal-close" id="svcModalClose" aria-label="Close"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
     <div class="svc-modal-scroll">
       <div class="svc-modal-sheet">
         <div class="svc-modal-body">
-          <h2 id="svcModalTitle"></h2>
-          <div id="svcModalCopy"></div>
-          <a href="#" id="svcModalCta" class="btn btn-primary btn-lg svc-modal-cta">Discuss This Service</a>
+          <header class="svc-modal-head">
+            <div class="svc-modal-titleblock">
+              <p class="eyebrow svc-modal-eyebrow">Above</p>
+              <h2 id="svcModalTitle"></h2>
+            </div>
+            <div class="svc-modal-lead" id="svcModalCopy"></div>
+          </header>
+          <div class="svc-modal-figures" id="svcModalFigures"></div>
         </div>
       </div>
     </div>
+    <footer class="svc-modal-bar">
+      <p class="svc-modal-bar-text" id="svcModalBarText"></p>
+      <div class="svc-modal-bar-actions">
+        <button type="button" class="btn btn-ghost svc-modal-dismiss" id="svcModalDismiss">Back to services</button>
+        <a href="#" id="svcModalCta" class="btn btn-primary svc-modal-cta">Discuss This Service</a>
+      </div>
+    </footer>
   </div>
 </div>
 <div class="img-lightbox" id="imgLightbox" role="dialog" aria-modal="true" aria-hidden="true">
-  <button type="button" class="img-lightbox-close" id="imgLightboxClose" aria-label="Close">&times;</button>
+  <button type="button" class="img-lightbox-close" id="imgLightboxClose" aria-label="Close full-size image"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
   <img id="imgLightboxImg" src="" alt="">
+  <p class="img-lightbox-caption" id="imgLightboxCaption"></p>
 </div>
 </div>
 
@@ -1607,7 +2202,7 @@ html[data-theme="dark"] #bgFixed{
 // POPUP_DATA below. Only the "Above" cards' "Learn More" trigger opens
 // this now -- "Below" cards are plain, non-interactive display cards.
 (function(){
-  var POPUP_DATA = {"svc-magnetic": {"title": "Magnetic Surveys", "body": ["Reveal geological structures and magnetic anomalies in greater detail. Flightec acquires high-resolution, low-altitude magnetic data to support structural mapping, target definition and exploration planning across complex terrain.", "<div class=\"svc-compare\"><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Regional magnetic dataset</span><div class=\"svc-compare-media\" data-bg=\"img/svc-magnetic-cmp0.jpg\" data-slot-media=\"svc-magnetic-cmp0\"></div><p class=\"svc-compare-desc\">Broad geological context across a larger area.</p></div><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Flightec project-specific magnetic survey</span><div class=\"svc-compare-media\" data-bg=\"img/svc-magnetic-cmp1.jpg\" data-slot-media=\"svc-magnetic-cmp1\"></div><p class=\"svc-compare-desc\">Higher-resolution detail to support local structural mapping and target definition.</p></div></div>", "See what greater magnetic resolution can reveal."], "cta": "Discuss Your Magnetic Survey", "ctaHref": "#contactForm"}, "svc-radiometric": {"title": "Radiometric Surveys", "body": ["Map near-surface geology and alteration patterns more clearly. Flightec acquires high-resolution radiometric data by measuring naturally occurring potassium, uranium and thorium at the Earth\u2019s surface. These measurements can help exploration teams examine lithological variation, geological boundaries and potential alteration patterns across the survey area.", "<div class=\"svc-compare\"><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Uranium</span><div class=\"svc-compare-media\" data-bg=\"img/svc-radiometric-cmp0.jpg\" data-slot-media=\"svc-radiometric-cmp0\"></div><p class=\"svc-compare-desc\">Uranium channel data across the survey area.</p></div><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Thorium</span><div class=\"svc-compare-media\" data-bg=\"img/svc-radiometric-cmp1.jpg\" data-slot-media=\"svc-radiometric-cmp1\"></div><p class=\"svc-compare-desc\">Thorium channel data across the survey area.</p></div><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Potassium</span><div class=\"svc-compare-media\" data-bg=\"img/svc-radiometric-cmp2.jpg\" data-slot-media=\"svc-radiometric-cmp2\"></div><p class=\"svc-compare-desc\">Potassium channel data across the survey area.</p></div><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Total Count</span><div class=\"svc-compare-media\" data-bg=\"img/svc-radiometric-cmp3.jpg\" data-slot-media=\"svc-radiometric-cmp3\"></div><p class=\"svc-compare-desc\">Total count radiometric response across the survey area.</p></div></div>", "Move from broad regional context to detailed precision."], "cta": "Discuss Your Radiometric Survey", "ctaHref": "#contactForm"}, "svc-topo": {"title": "Topographic Surveys", "body": ["Build a more accurate understanding of the surface. High-resolution topographic data supports terrain analysis, accessing planning, survey design and site development through detailed orthophotos, digital terrain and surface models.", "<div class=\"svc-compare\"><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Standard regional elevation data</span><div class=\"svc-compare-media\" data-bg=\"img/svc-topo-cmp0.jpg\" data-slot-media=\"svc-topo-cmp0\"></div><p class=\"svc-compare-desc\">Broad terrain information for regional planning.</p></div><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Flightec project-specific topographic survey</span><div class=\"svc-compare-media\" data-bg=\"img/svc-topo-cmp1.jpg\" data-slot-media=\"svc-topo-cmp1\"></div><p class=\"svc-compare-desc\">Detailed surface information for site-level analysis and planning.</p></div></div>", "Understand the terrain at the level where decisions are made."], "cta": "Discuss Your Mapping Requirements", "ctaHref": "#contactForm"}};
+  var POPUP_DATA = {"svc-magnetic": {"title": "Magnetic Surveys", "body": ["Reveal geological structures and magnetic anomalies in greater detail. Flightec acquires high-resolution, low-altitude magnetic data to support structural mapping, target definition and exploration planning across complex terrain.", "<div class=\"svc-compare\"><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Regional Magnetic Survey</span><div class=\"svc-compare-media\" data-bg=\"img/svc-magnetic-cmp0.webp\" data-slot-media=\"svc-magnetic-cmp0\"></div><p class=\"svc-compare-desc\">Broad geological context across a larger area.</p></div><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Flightec Magnetic Survey</span><div class=\"svc-compare-media\" data-bg=\"img/svc-magnetic-cmp1.webp\" data-slot-media=\"svc-magnetic-cmp1\"></div><p class=\"svc-compare-desc\">Higher-resolution detail to support local structural mapping and target definition.</p></div></div>", "See what greater magnetic resolution can reveal."], "cta": "Discuss Your Magnetic Survey", "ctaHref": "#contactForm"}, "svc-radiometric": {"title": "Radiometric Surveys", "body": ["Map near-surface geology and alteration patterns more clearly. Flightec acquires high-resolution radiometric data by measuring naturally occurring potassium, uranium and thorium at the Earth\u2019s surface. These measurements can help exploration teams examine lithological variation, geological boundaries and potential alteration patterns across the survey area.", "<div class=\"svc-compare\"><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Uranium</span><div class=\"svc-compare-media\" data-bg=\"img/svc-radiometric-cmp0.webp\" data-slot-media=\"svc-radiometric-cmp0\"></div><p class=\"svc-compare-desc\">Uranium channel data across the survey area.</p></div><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Thorium</span><div class=\"svc-compare-media\" data-bg=\"img/svc-radiometric-cmp1.webp\" data-slot-media=\"svc-radiometric-cmp1\"></div><p class=\"svc-compare-desc\">Thorium channel data across the survey area.</p></div><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Potassium</span><div class=\"svc-compare-media\" data-bg=\"img/svc-radiometric-cmp2.webp\" data-slot-media=\"svc-radiometric-cmp2\"></div><p class=\"svc-compare-desc\">Potassium channel data across the survey area.</p></div><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Total Count</span><div class=\"svc-compare-media\" data-bg=\"img/svc-radiometric-cmp3.webp\" data-slot-media=\"svc-radiometric-cmp3\"></div><p class=\"svc-compare-desc\">Total count radiometric response across the survey area.</p></div></div>", "Move from broad regional context to detailed precision."], "cta": "Discuss Your Radiometric Survey", "ctaHref": "#contactForm"}, "svc-topo": {"title": "Topographic Surveys", "body": ["Build a more accurate understanding of the surface. High-resolution topographic data supports terrain analysis, accessing planning, survey design and site development through detailed orthophotos, digital terrain and surface models.", "<div class=\"svc-compare\"><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">SRTM</span><div class=\"svc-compare-media\" data-bg=\"img/svc-topo-cmp0.webp\" data-slot-media=\"svc-topo-cmp0\"></div><p class=\"svc-compare-desc\">Broad terrain information for regional planning.</p></div><div class=\"svc-compare-item\"><span class=\"svc-compare-label\">Flightec Survey</span><div class=\"svc-compare-media\" data-bg=\"img/svc-topo-cmp1.webp\" data-slot-media=\"svc-topo-cmp1\"></div><p class=\"svc-compare-desc\">Detailed surface information for site-level analysis and planning.</p></div></div>", "Understand the terrain at the level where decisions are made."], "cta": "Discuss Your Mapping Requirements", "ctaHref": "#contactForm"}};
   window.POPUP_DATA = POPUP_DATA; // exposed for the editable build's builder UI
   var modal = document.getElementById('svcModal');
   if(!modal) return;
@@ -1615,6 +2210,9 @@ html[data-theme="dark"] #bgFixed{
   var copyEl = document.getElementById('svcModalCopy');
   var ctaEl = document.getElementById('svcModalCta');
   var closeBtn = document.getElementById('svcModalClose');
+  var figEl = document.getElementById('svcModalFigures');
+  var barTextEl = document.getElementById('svcModalBarText');
+  var dismissBtn = document.getElementById('svcModalDismiss');
   var lastTrigger = null;
 
   function open(slot){
@@ -1622,9 +2220,58 @@ html[data-theme="dark"] #bgFixed{
     if(!data) return;
     modal.setAttribute('data-current-slot', slot);
     titleEl.textContent = data.title;
-    copyEl.innerHTML = data.body.map(function(p){
-      return (p.trim().indexOf('<') === 0) ? p : ('<p>' + p + '</p>');
-    }).join('');
+    // The body array reads: intro paragraph(s), then the figure markup,
+    // then a closing line. Intro goes beside the title, figures get their
+    // own gallery, and the closing line sits in the action bar with the
+    // CTA so the button always has context and never floats on its own.
+    var lead = [], figs = [], closing = [], seenFigures = false;
+    data.body.forEach(function(p){
+      if(p.trim().indexOf('<') === 0){ figs.push(p); seenFigures = true; }
+      else if(seenFigures){ closing.push(p); }
+      else { lead.push('<p>' + p + '</p>'); }
+    });
+    copyEl.innerHTML = lead.join('');
+    if(figEl){
+      figEl.innerHTML = figs.join('');
+      figEl.querySelectorAll('.svc-compare').forEach(function(grid){
+        var items = grid.querySelectorAll('.svc-compare-item');
+        grid.setAttribute('data-count', items.length);
+        items.forEach(function(item, i){
+          var label = item.querySelector('.svc-compare-label');
+          var media = item.querySelector('.svc-compare-media');
+          if(label){
+            var head = document.createElement('div');
+            head.className = 'svc-fig-head';
+            var num = document.createElement('span');
+            num.className = 'svc-fig-num';
+            num.textContent = (i < 9 ? '0' : '') + (i + 1);
+            label.parentNode.insertBefore(head, label);
+            head.appendChild(num);
+            head.appendChild(label);
+            if(/flightec/i.test(label.textContent)) item.classList.add('is-flightec');
+          }
+          if(media){
+            var plate = document.createElement('div');
+            plate.className = 'svc-plate';
+            plate.setAttribute('role', 'button');
+            plate.setAttribute('tabindex', '0');
+            plate.setAttribute('aria-label', 'View full size: ' + (label ? label.textContent : 'figure ' + (i + 1)));
+            media.parentNode.insertBefore(plate, media);
+            plate.appendChild(media);
+            var zoom = document.createElement('span');
+            zoom.className = 'svc-plate-zoom';
+            zoom.setAttribute('aria-hidden', 'true');
+            zoom.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13"><path d="M9.5 2.5h4v4M13.5 2.5 9 7M6.5 13.5h-4v-4M2.5 13.5 7 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+            plate.appendChild(zoom);
+          }
+          item.style.setProperty('--i', i);
+        });
+      });
+    }
+    if(barTextEl){
+      barTextEl.textContent = closing.join(' ');
+      barTextEl.hidden = !closing.length;
+    }
     if(ctaEl){
       ctaEl.textContent = data.cta;
       ctaEl.setAttribute('href', data.ctaHref);
@@ -1633,13 +2280,7 @@ html[data-theme="dark"] #bgFixed{
     modal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('modal-open');
     modal.querySelector('.svc-modal-scroll').scrollTop = 0;
-    // The comparison images' data-bg divs above are injected fresh via
-    // innerHTML on every open, so they never existed for the page-load
-    // IntersectionObserver pass in the lazy-bg loader further down to
-    // find/observe. Since the modal is visible right now, just load them
-    // immediately rather than trying to lazily observe elements inside an
-    // already-open popup.
-    if(window.loadLazyBg) window.loadLazyBg(copyEl);
+    if(window.loadLazyBg) window.loadLazyBg(figEl);
   }
 
   function close(){
@@ -1680,29 +2321,69 @@ html[data-theme="dark"] #bgFixed{
     });
   }
 
-  // Full-size lightbox markup is still in the DOM (render_image_lightbox)
-  // but nothing opens it now that the popup no longer has a supporting
-  // image to zoom into -- these handlers are just cleanup/no-ops.
+  // Full-size viewer: clicking/tapping a figure plate (or Enter/Space on a
+  // focused one) opens that survey image at full size with its number and
+  // label. Escape, the close button or a click on the dark surround closes
+  // it and returns to the popup.
   var lightbox = document.getElementById('imgLightbox');
   var lightboxImg = document.getElementById('imgLightboxImg');
   var lightboxClose = document.getElementById('imgLightboxClose');
+  var lightboxCaption = document.getElementById('imgLightboxCaption');
+  var lastPlate = null;
+  function openLightbox(plate){
+    if(!lightbox || !plate) return;
+    var media = plate.querySelector('.svc-compare-media');
+    var bg = media ? media.style.backgroundImage || getComputedStyle(media).backgroundImage : '';
+    var m = /url\((['"]?)(.*?)\1\)/.exec(bg);
+    if(!m) return;
+    var item = plate.closest('.svc-compare-item');
+    var num = item && item.querySelector('.svc-fig-num');
+    var label = item && item.querySelector('.svc-compare-label');
+    lightboxImg.src = m[2];
+    lightboxImg.alt = label ? label.textContent : '';
+    if(lightboxCaption){
+      lightboxCaption.innerHTML = '';
+      if(num){ var n = document.createElement('span'); n.className = 'svc-fig-num'; n.textContent = num.textContent; lightboxCaption.appendChild(n); }
+      if(label){ lightboxCaption.appendChild(document.createTextNode(label.textContent)); }
+    }
+    lastPlate = plate;
+    lightbox.classList.add('is-open');
+    lightbox.setAttribute('aria-hidden', 'false');
+    if(lightboxClose) lightboxClose.focus({preventScroll:true});
+  }
   function closeLightbox(){
-    if(!lightbox) return;
+    if(!lightbox || !lightbox.classList.contains('is-open')) return;
     lightbox.classList.remove('is-open');
     lightbox.setAttribute('aria-hidden', 'true');
     lightboxImg.src = '';
+    if(lastPlate){ lastPlate.focus({preventScroll:true}); lastPlate = null; }
+  }
+  if(figEl){
+    figEl.addEventListener('click', function(e){
+      var plate = e.target.closest('.svc-plate');
+      if(plate) openLightbox(plate);
+    });
+    figEl.addEventListener('keydown', function(e){
+      if(e.key !== 'Enter' && e.key !== ' ') return;
+      var plate = e.target.closest('.svc-plate');
+      if(plate){ e.preventDefault(); openLightbox(plate); }
+    });
   }
   if(lightboxClose){ lightboxClose.addEventListener('click', closeLightbox); }
   if(lightbox){
     lightbox.addEventListener('click', function(e){
-      if(e.target === lightbox) closeLightbox();
+      if(e.target === lightbox || e.target === lightboxImg) closeLightbox();
     });
   }
   document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape' && lightbox && lightbox.classList.contains('is-open')) closeLightbox();
+    if(e.key === 'Escape' && lightbox && lightbox.classList.contains('is-open')){
+      e.stopImmediatePropagation();
+      closeLightbox();
+    }
   });
 
   closeBtn.addEventListener('click', close);
+  if(dismissBtn){ dismissBtn.addEventListener('click', close); }
   // Clicking the dimmed backdrop (anywhere outside the panel, now that the
   // panel is inset rather than full-bleed) closes it too — but a click that
   // starts inside the panel and drags out (e.g. selecting body copy) should
@@ -1861,7 +2542,10 @@ function makeVisibilitySpy(items, onChange){
 
   tags.forEach(function(t){
     t.addEventListener('click', function(){
-      setActive(t.getAttribute('data-slot'));
+      var slot = t.getAttribute('data-slot');
+      // Tapping the row that's already open closes it again, returning the
+      // section to its plain look with the contours showing through.
+      setActive(about.getAttribute('data-active-slot') === slot ? null : slot);
     });
   });
 })();
@@ -2150,15 +2834,311 @@ function makeVisibilitySpy(items, onChange){
   if(siteRoot) siteRoot.setAttribute('data-theme', 'dark');
 })();
 
+// Hero pixel reveal (desktop only). Moving the mouse over the hero uncovers
+// the survey data image in square blocks that linger briefly and then fade
+// back to the hero photo. Runs with a mouse at 1024px and wider, and on
+// touch screens, where it follows the finger as the visitor swipes (without
+// ever blocking the page from scrolling). Off for reduced-motion visitors. Tuning
+// lives on the hero <section> as data attributes: data-cell-size (px),
+// data-radius (brush size in squares), data-hold / data-fade (ms) and
+// data-jitter (0-1, how ragged the brush edge is).
+(function () {
+  'use strict';
+
+  var DEFAULTS = {
+    cellSize: 48,
+    radius: 2.2,
+    hold: 250,
+    fade: 700,
+    jitter: 0.35,
+    minWidth: 1024
+  };
+
+  function readData(el) {
+    var d = el.dataset, o = {};
+    if (d.cellSize) o.cellSize = parseFloat(d.cellSize);
+    if (d.radius) o.radius = parseFloat(d.radius);
+    if (d.hold) o.hold = parseFloat(d.hold);
+    if (d.fade) o.fade = parseFloat(d.fade);
+    if (d.jitter) o.jitter = parseFloat(d.jitter);
+    if (d.minWidth) o.minWidth = parseFloat(d.minWidth);
+    return o;
+  }
+
+  function HeroReveal(el, options) {
+    this.el = el;
+    this.o = Object.assign({}, DEFAULTS, readData(el), options || {});
+    this.src = (options && options.src) || el.getAttribute('data-hero-reveal');
+
+    this.canvas = el.querySelector('canvas.hero-reveal');
+    if (!this.canvas) {
+      this.canvas = document.createElement('canvas');
+      this.canvas.className = 'hero-reveal';
+      this.canvas.setAttribute('aria-hidden', 'true');
+      el.insertBefore(this.canvas, el.firstChild);
+    }
+    this.ctx = this.canvas.getContext('2d');
+    this.buffer = document.createElement('canvas');
+    this.bctx = this.buffer.getContext('2d');
+
+    this.img = null;
+    this.enabled = false;
+    this.running = false;
+    this.last = null;
+    this.active = new Set();
+
+    this._onMove = this._onMove.bind(this);
+    this._onLeave = this._onLeave.bind(this);
+    this._onTouch = this._onTouch.bind(this);
+    this.touchMode = false;
+    this._frame = this._frame.bind(this);
+
+    this.mq = window.matchMedia(
+      '(hover: hover) and (pointer: fine) and (min-width: ' + this.o.minWidth + 'px)'
+    );
+    this.mqTouch = window.matchMedia('(hover: none) and (pointer: coarse)');
+    this.rm = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var check = this._check.bind(this);
+    [this.mq, this.mqTouch, this.rm].forEach(function (m) {
+      if (m.addEventListener) m.addEventListener('change', check);
+      else m.addListener(check);
+    });
+
+    var self = this;
+    if ('ResizeObserver' in window) {
+      // Ignore the small height changes mobile browsers make while their
+      // address bar slides in and out, so a reveal isn't wiped mid-swipe.
+      this.ro = new ResizeObserver(function () {
+        if (!self.enabled || !self.img) return;
+        var r = el.getBoundingClientRect();
+        if (self._w === Math.round(r.width) && Math.abs(self._h - r.height) < 140) return;
+        self._resize();
+      });
+      this.ro.observe(el);
+    } else {
+      window.addEventListener('resize', function () { if (self.enabled && self.img) self._resize(); });
+    }
+
+    this._check();
+  }
+
+  HeroReveal.prototype._check = function () {
+    var want = (this.mq.matches || this.mqTouch.matches) && !this.rm.matches;
+    if (want && !this.enabled) this._enable();
+    else if (!want && this.enabled) this._disable();
+  };
+
+  HeroReveal.prototype._enable = function () {
+    var self = this;
+    this.enabled = true;
+    // The reveal image is only downloaded where the effect runs.
+    var ready = this.img ? Promise.resolve() : new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.decoding = 'async';
+      img.onload = function () { self.img = img; resolve(); };
+      img.onerror = reject;
+      img.src = self.src;
+    });
+    ready.then(function () {
+      if (!self.enabled) return;
+      self._resize();
+      self.el.addEventListener('pointermove', self._onMove, { passive: true });
+      self.el.addEventListener('pointerleave', self._onLeave, { passive: true });
+      self.el.addEventListener('touchstart', self._onTouch, { passive: true });
+      self.el.addEventListener('touchmove', self._onTouch, { passive: true });
+      self.el.addEventListener('touchend', self._onLeave, { passive: true });
+      self.el.addEventListener('touchcancel', self._onLeave, { passive: true });
+      self.el.classList.add('hero-reveal-on');
+    }).catch(function () {
+      self.enabled = false;
+    });
+  };
+
+  HeroReveal.prototype._disable = function () {
+    this.enabled = false;
+    this.el.removeEventListener('pointermove', this._onMove);
+    this.el.removeEventListener('pointerleave', this._onLeave);
+    this.el.removeEventListener('touchstart', this._onTouch);
+    this.el.removeEventListener('touchmove', this._onTouch);
+    this.el.removeEventListener('touchend', this._onLeave);
+    this.el.removeEventListener('touchcancel', this._onLeave);
+    this.el.classList.remove('hero-reveal-on');
+    this.active.clear();
+    this.last = null;
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  };
+
+  HeroReveal.prototype._resize = function () {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var r = this.el.getBoundingClientRect();
+    var W = Math.max(1, Math.round(r.width * dpr));
+    var H = Math.max(1, Math.round(r.height * dpr));
+
+    this.dpr = dpr;
+    this._w = Math.round(r.width); this._h = r.height;
+    this.canvas.width = this.buffer.width = W;
+    this.canvas.height = this.buffer.height = H;
+
+    // Squares are whole device pixels so neighbouring squares never show seams.
+    this.cs = Math.max(4, Math.round(this.o.cellSize * dpr));
+    this.cols = Math.ceil(W / this.cs);
+    this.rows = Math.ceil(H / this.cs);
+    this.stamp = new Float64Array(this.cols * this.rows);
+    this.extra = new Float32Array(this.cols * this.rows);
+    this.active.clear();
+
+    // Pre-render the reveal image "cover"-fitted and centred, like background-size: cover.
+    var iw = this.img.naturalWidth, ih = this.img.naturalHeight;
+    var s = Math.max(W / iw, H / ih);
+    var dw = iw * s, dh = ih * s;
+    this.bctx.clearRect(0, 0, W, H);
+    this.bctx.drawImage(this.img, (W - dw) / 2, H - dh, dw, dh);
+    this.ctx.clearRect(0, 0, W, H);
+  };
+
+  HeroReveal.prototype._onMove = function (e) {
+    if (e.pointerType && e.pointerType !== 'mouse') return;
+    this.touchMode = false;
+    this._stroke(e.clientX, e.clientY);
+  };
+
+  // Touch: listeners are passive, so the page scrolls exactly as normal;
+  // the reveal simply follows the finger (touchmove keeps firing while the
+  // page scrolls under it, which draws a trail up the hero).
+  HeroReveal.prototype._onTouch = function (e) {
+    var t = e.touches && e.touches[0];
+    if (!t) return;
+    this.touchMode = true;
+    this._stroke(t.clientX, t.clientY);
+  };
+
+  HeroReveal.prototype._stroke = function (clientX, clientY) {
+    var r = this.el.getBoundingClientRect();
+    var x = (clientX - r.left) * this.dpr;
+    var y = (clientY - r.top) * this.dpr;
+    var now = performance.now();
+
+    if (this.last) {
+      // Fill the gap between events so fast mouse movements leave an unbroken trail.
+      var dx = x - this.last.x, dy = y - this.last.y;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      var step = this.cs * 0.5;
+      var n = Math.min(60, Math.floor(dist / step));
+      for (var k = 1; k <= n; k++) {
+        this._brush(this.last.x + dx * k / (n + 1), this.last.y + dy * k / (n + 1), now);
+      }
+    }
+    this._brush(x, y, now);
+    this.last = { x: x, y: y };
+
+    if (!this.running) {
+      this.running = true;
+      requestAnimationFrame(this._frame);
+    }
+  };
+
+  HeroReveal.prototype._onLeave = function () {
+    this.last = null;
+  };
+
+  HeroReveal.prototype._brush = function (x, y, now) {
+    var cs = this.cs, R = this.o.radius * (this.touchMode ? 1.6 : 1), J = this.o.jitter;
+    var cx = x / cs, cy = y / cs;
+    var x0 = Math.max(0, Math.floor(cx - R)), x1 = Math.min(this.cols - 1, Math.floor(cx + R));
+    var y0 = Math.max(0, Math.floor(cy - R)), y1 = Math.min(this.rows - 1, Math.floor(cy + R));
+    var solid = 1 - J;
+
+    for (var iy = y0; iy <= y1; iy++) {
+      for (var ix = x0; ix <= x1; ix++) {
+        var ddx = ix + 0.5 - cx, ddy = iy + 0.5 - cy;
+        var d = Math.sqrt(ddx * ddx + ddy * ddy) / R;
+        if (d > 1) continue;
+        // Solid core, ragged edge.
+        if (d > solid && Math.random() > (1 - d) / (J || 1)) continue;
+        var i = iy * this.cols + ix;
+        this.stamp[i] = now;
+        this.extra[i] = Math.random() * this.o.hold * 0.8;
+        this.active.add(i);
+      }
+    }
+  };
+
+  HeroReveal.prototype._frame = function (now) {
+    var ctx = this.ctx, cs = this.cs, cols = this.cols;
+    var W = this.canvas.width, H = this.canvas.height;
+    // A finger hides what's under it, so squares linger a little longer on touch.
+    var k = this.touchMode ? 2.4 : 1;
+    var hold = this.o.hold * k, fade = this.o.fade * k;
+    var self = this;
+
+    ctx.clearRect(0, 0, W, H);
+
+    this.active.forEach(function (i) {
+      var age = now - self.stamp[i] - hold - self.extra[i];
+      var a = age <= 0 ? 1 : 1 - age / fade;
+      if (a <= 0) { self.active.delete(i); return; }
+      // Ease out so squares linger, then drop away.
+      a = a * a * (3 - 2 * a);
+      var px = (i % cols) * cs, py = Math.floor(i / cols) * cs;
+      var w = Math.min(cs, W - px), h = Math.min(cs, H - py);
+      ctx.globalAlpha = a;
+      ctx.drawImage(self.buffer, px, py, w, h, px, py, w, h);
+    });
+    ctx.globalAlpha = 1;
+
+    if (this.active.size) requestAnimationFrame(this._frame);
+    else this.running = false;
+  };
+
+  /** Change settings at runtime, e.g. instance.set({ cellSize: 32 }). */
+  HeroReveal.prototype.set = function (opts) {
+    var regrid = opts.cellSize != null && opts.cellSize !== this.o.cellSize;
+    Object.assign(this.o, opts);
+    if (regrid && this.enabled && this.img) this._resize();
+  };
+
+  window.HeroReveal = HeroReveal;
+
+  function init() {
+    var els = document.querySelectorAll('[data-hero-reveal]');
+    for (var i = 0; i < els.length; i++) {
+      if (!els[i]._heroReveal) els[i]._heroReveal = new HeroReveal(els[i]);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+// Card spotlight (desktop only): feeds the cursor position into --mx/--my
+// so the soft accent glow on pillars, location maps and the contact card
+// follows the mouse. Written once per frame at most.
+(function(){
+  if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  var cards = document.querySelectorAll('.pillar, .location-map, .contact-form-card');
+  Array.prototype.forEach.call(cards, function(card){
+    var raf = 0, x = 0, y = 0;
+    card.addEventListener('pointermove', function(e){
+      var r = card.getBoundingClientRect();
+      x = e.clientX - r.left; y = e.clientY - r.top;
+      if(raf) return;
+      raf = requestAnimationFrame(function(){
+        card.style.setProperty('--mx', x + 'px');
+        card.style.setProperty('--my', y + 'px');
+        raf = 0;
+      });
+    }, {passive:true});
+  });
+})();
+</script>
+<script>
 // Lazy-load real photo backgrounds referenced via data-bg="path/to.jpg"
-// (only present in the 'linked' image build -- the self-contained artifact
-// build embeds every image directly and has no [data-bg] elements, so this
-// is a harmless no-op there). Deferring these until they're actually near
-// the viewport keeps the initial page weight small.
+// (see the extraction that swapped embedded base64 images for real files
+// under img/). Deferring these until they're actually near the viewport
+// keeps the initial page weight small.
 //
 // window.loadLazyBg(root) loads every not-yet-loaded [data-bg] element
-// under `root` immediately (no observing) -- used by the service popup
-// above, because its comparison images are injected fresh via innerHTML
+// under `root` immediately (no observing) -- used by the service popup,
+// because its comparison-figure images are injected fresh via innerHTML
 // each time it opens and so never existed for the page-load
 // IntersectionObserver pass below to find.
 (function(){
@@ -2175,7 +3155,6 @@ function makeVisibilitySpy(items, onChange){
   var els = document.querySelectorAll('[data-bg]');
   if(!els.length) return;
   if(!('IntersectionObserver' in window)){
-    // No IO support -- just load everything up front rather than never.
     els.forEach(load);
     return;
   }

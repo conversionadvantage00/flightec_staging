@@ -1856,7 +1856,7 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
 </div>
 
 <main id="top">
-  <section class="hero has-media" data-cell-size="16" data-radius="3" data-hold="150" data-fade="200" data-jitter="1" data-hero-reveal="img/hero-reveal.webp">
+  <section class="hero has-media" data-cell-size="16" data-radius="3" data-hold="0" data-fade="90" data-jitter="1" data-hero-reveal="img/hero-reveal.webp">
     <div class="hero-media hero-media-desktop" style="background-image:url('img/hero.jpg')" data-slot-media="hero"></div>
     <div class="hero-media hero-media-mobile" style="background-image:url('img/hero-mobile.jpg')" data-slot-media="hero-mobile"></div>
     <canvas class="hero-reveal" aria-hidden="true"></canvas>
@@ -3026,16 +3026,10 @@ function makeVisibilitySpy(items, onChange){
     var y = (clientY - r.top) * this.dpr;
     var now = performance.now();
 
-    if (this.last) {
-      // Fill the gap between events so fast mouse movements leave an unbroken trail.
-      var dx = x - this.last.x, dy = y - this.last.y;
-      var dist = Math.sqrt(dx * dx + dy * dy);
-      var step = this.cs * 0.5;
-      var n = Math.min(60, Math.floor(dist / step));
-      for (var k = 1; k <= n; k++) {
-        this._brush(this.last.x + dx * k / (n + 1), this.last.y + dy * k / (n + 1), now);
-      }
-    }
+    // Only stamp the current pointer position -- no fill-the-gap trail
+    // between events. That's what used to leave an elongated "tail" behind
+    // fast mouse movement; the brush should read as a single circle that
+    // tracks the cursor, not a smeared path.
     this._brush(x, y, now);
     this.last = { x: x, y: y };
 

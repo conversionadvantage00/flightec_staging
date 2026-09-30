@@ -1856,7 +1856,7 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
 </div>
 
 <main id="top">
-  <section class="hero has-media" data-cell-size="16" data-radius="3" data-hold="0" data-fade="90" data-jitter="1" data-hero-reveal="img/hero-reveal.webp">
+  <section class="hero has-media" data-cell-size="16" data-radius="4.5" data-radius-touch="4.8" data-hold="0" data-fade="140" data-jitter="1" data-hero-reveal="img/hero-reveal.webp">
     <div class="hero-media hero-media-desktop" style="background-image:url('img/hero.jpg')" data-slot-media="hero"></div>
     <div class="hero-media hero-media-mobile" style="background-image:url('img/hero-mobile.jpg')" data-slot-media="hero-mobile"></div>
     <canvas class="hero-reveal" aria-hidden="true"></canvas>
@@ -2856,6 +2856,11 @@ function makeVisibilitySpy(items, onChange){
   var DEFAULTS = {
     cellSize: 48,
     radius: 2.2,
+    // Touch brush size is an explicit absolute value now, not a multiplier
+    // on the desktop radius -- that way tuning the desktop brush size never
+    // changes the mobile one as a side effect. Falls back to the old
+    // radius*1.6 relationship if not set.
+    touchRadius: null,
     hold: 250,
     fade: 700,
     jitter: 0.35,
@@ -2866,6 +2871,7 @@ function makeVisibilitySpy(items, onChange){
     var d = el.dataset, o = {};
     if (d.cellSize) o.cellSize = parseFloat(d.cellSize);
     if (d.radius) o.radius = parseFloat(d.radius);
+    if (d.radiusTouch) o.touchRadius = parseFloat(d.radiusTouch);
     if (d.hold) o.hold = parseFloat(d.hold);
     if (d.fade) o.fade = parseFloat(d.fade);
     if (d.jitter) o.jitter = parseFloat(d.jitter);
@@ -2893,6 +2899,7 @@ function makeVisibilitySpy(items, onChange){
     this.enabled = false;
     this.running = false;
     this.last = null;
+    this.hovering = false;
     this.active = new Set();
 
     this._onMove = this._onMove.bind(this);
@@ -3007,6 +3014,7 @@ function makeVisibilitySpy(items, onChange){
   HeroReveal.prototype._onMove = function (e) {
     if (e.pointerType && e.pointerType !== 'mouse') return;
     this.touchMode = false;
+    this.hovering = true;
     this._stroke(e.clientX, e.clientY);
   };
 
@@ -3017,6 +3025,7 @@ function makeVisibilitySpy(items, onChange){
     var t = e.touches && e.touches[0];
     if (!t) return;
     this.touchMode = true;
+    this.hovering = true;
     this._stroke(t.clientX, t.clientY);
   };
 
@@ -3040,11 +3049,28 @@ function makeVisibilitySpy(items, onChange){
   };
 
   HeroReveal.prototype._onLeave = function () {
+    this.hovering = false;
     this.last = null;
   };
 
+  // Deterministic per-cell pseudo-random value (0-1), used for the ragged
+  // jitter edge instead of Math.random(). Because it only depends on the
+  // cell's own coordinates, the same cell always gets the same jitter
+  // result -- so re-brushing the same spot every animation frame (needed to
+  // keep the circle alive while the cursor is simply resting, not moving)
+  // redraws an identical, stable edge instead of a new random speckle
+  // pattern each frame, which is what read as rapid flicker/"fast".
+  HeroReveal.prototype._hash = function (ix, iy) {
+    var n = (ix * 374761393 + iy * 668265263) | 0;
+    n = (n ^ (n >>> 13)) | 0;
+    n = Math.imul(n, 1274126177);
+    n = (n ^ (n >>> 16)) >>> 0;
+    return n / 4294967295;
+  };
+
   HeroReveal.prototype._brush = function (x, y, now) {
-    var cs = this.cs, R = this.o.radius * (this.touchMode ? 1.6 : 1), J = this.o.jitter;
+    var touchR = this.o.touchRadius != null ? this.o.touchRadius : this.o.radius * 1.6;
+    var cs = this.cs, R = this.touchMode ? touchR : this.o.radius, J = this.o.jitter;
     var cx = x / cs, cy = y / cs;
     var x0 = Math.max(0, Math.floor(cx - R)), x1 = Math.min(this.cols - 1, Math.floor(cx + R));
     var y0 = Math.max(0, Math.floor(cy - R)), y1 = Math.min(this.rows - 1, Math.floor(cy + R));
@@ -3055,11 +3081,11 @@ function makeVisibilitySpy(items, onChange){
         var ddx = ix + 0.5 - cx, ddy = iy + 0.5 - cy;
         var d = Math.sqrt(ddx * ddx + ddy * ddy) / R;
         if (d > 1) continue;
-        // Solid core, ragged edge.
-        if (d > solid && Math.random() > (1 - d) / (J || 1)) continue;
+        // Solid core, ragged edge -- stable per-cell, not re-rolled per frame.
+        if (d > solid && this._hash(ix, iy) > (1 - d) / (J || 1)) continue;
         var i = iy * this.cols + ix;
         this.stamp[i] = now;
-        this.extra[i] = Math.random() * this.o.hold * 0.8;
+        this.extra[i] = 0;
         this.active.add(i);
       }
     }
@@ -3072,6 +3098,13 @@ function makeVisibilitySpy(items, onChange){
     var k = this.touchMode ? 2.4 : 1;
     var hold = this.o.hold * k, fade = this.o.fade * k;
     var self = this;
+
+    // Keep re-stamping the cursor's current spot every frame, not just on
+    // pointermove -- otherwise the circle fades out and vanishes the moment
+    // the mouse stops moving, even though it's still resting over the hero.
+    if (this.hovering && this.last) {
+      this._brush(this.last.x, this.last.y, now);
+    }
 
     ctx.clearRect(0, 0, W, H);
 

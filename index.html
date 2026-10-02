@@ -96,8 +96,12 @@
   --modal-bg:#0c0e11;
 
   /* Semi-transparent stand-in for --bg/--pillars-bg used by the sections
-     that sit over the fixed contour-texture layer (see style_base.css). */
-  --veil-bg:rgba(10,11,13,.9);
+     that sit over the fixed contour-texture layer (see style_base.css).
+     Opacity lowered ~15% (.9 -> .76) per client request, to let more of
+     the contour texture show through the section bodies -- it was barely
+     visible there even once the fixed layer's own opacity was raised,
+     since this near-opaque veil sits on top of it. */
+  --veil-bg:rgba(10,11,13,.76);
 }
 
 body{background:var(--bg);transition:background .4s ease,color .4s ease;}
@@ -355,7 +359,7 @@ body.menu-open .nav{z-index:201;}
   height:22%;min-height:140px;pointer-events:none;
   background:linear-gradient(180deg,rgba(10,11,13,0) 0%,var(--bg) 100%);
 }
-.hero.has-media .eyebrow{color:#fff;font-size:0.84rem;font-weight:700;letter-spacing:0.26em;text-shadow:0 1px 14px rgba(0,0,0,.55);}
+.hero.has-media .eyebrow{color:#fff;font-size:1rem;font-weight:700;letter-spacing:0.26em;text-shadow:0 1px 14px rgba(0,0,0,.55);}
 .hero.has-media .hero-title{color:#fff;}
 .hero.has-media .hero-title .accent{color:#3e80aa;}
 .hero.has-media .hero-sub{color:rgba(255,255,255,.86);}
@@ -848,6 +852,12 @@ body.modal-open{overflow:hidden;}
   box-shadow:0 40px 90px rgba(0,0,0,.35);
 }
 .contact-form{display:flex;flex-direction:column;gap:20px;}
+/* The form's own `display:flex` above has equal CSS specificity to the
+   browser's built-in `[hidden]{display:none}` rule and, being an author
+   rule, wins the tie -- so simply setting form.hidden = true in JS would
+   NOT actually hide it (it would sit there still flexed open, overlapping
+   the success message). This makes the hidden attribute win explicitly. */
+.contact-form[hidden]{display:none;}
 .form-row{display:flex;flex-direction:column;gap:8px;}
 .form-row label{
   font-size:0.76rem;letter-spacing:0.08em;text-transform:uppercase;
@@ -863,6 +873,14 @@ body.modal-open{overflow:hidden;}
   background-repeat:no-repeat;background-position:right 16px center;padding-right:38px;}
 .form-row input:focus,.form-row textarea:focus,.form-row select:focus{outline:none;border-color:var(--accent);}
 .contact-form textarea{resize:vertical;min-height:120px;}
+.form-status{font-size:0.9rem;margin:0;min-height:0;}
+.form-status:empty{display:none;}
+.form-status.is-error{color:#e2685c;}
+.contact-form.is-submitting .btn[type="submit"]{opacity:.7;pointer-events:none;}
+.form-success{text-align:center;padding:12px 0;}
+.form-success-title{font-family:'Aptos',sans-serif;font-weight:700;font-size:1.3rem;color:var(--ink);margin-bottom:12px;}
+.form-success-body{color:var(--ink-dim);font-size:0.96rem;line-height:1.6;margin-bottom:24px;}
+.form-success-body a{color:var(--accent);}
 
 /* "Service Required" -- a custom dropdown so it can both collapse like the
    rest of the form's fields AND let more than one option be ticked once
@@ -1849,6 +1867,22 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
   ]
 }
 </script>
+<!-- Google's own "site name" guidance (developers.google.com/search/docs/appearance/site-names)
+     is to provide an explicit WebSite entry with a "name" -- this is the
+     strongest signal for making the bolded/title name shown in search
+     results use this exact casing ("FLIGHTEC") instead of Google's own
+     lowercase guess from the domain. Changing this doesn't update an
+     already-indexed result instantly -- it takes effect once Google
+     re-crawls, which can take anywhere from days to a few weeks, faster
+     if the URL is resubmitted via Google Search Console. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "FLIGHTEC",
+  "url": "https://flightec.co.za/"
+}
+</script>
 </head>
 <body>
 
@@ -2110,8 +2144,19 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
             <label for="cf-notes">Additional Information</label>
             <textarea id="cf-notes" name="notes" rows="4"></textarea>
           </div>
+          <!-- Honeypot: invisible to real visitors (off-screen + unreachable by
+               tab), but a generic bot filling every field on the page fills
+               this one too, and Formspree silently discards any submission
+               where it's non-empty. -->
+          <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
           <button type="submit" class="btn btn-primary btn-lg">Send Message</button>
+          <p class="form-status" id="formStatus" role="alert"></p>
         </form>
+        <div class="form-success" id="formSuccess" hidden>
+          <p class="form-success-title">Thanks — your message is on its way.</p>
+          <p class="form-success-body">We've received your details and will be in touch shortly. If it's urgent, you can also reach us directly at <a href="mailto:nathan.archer@flightec.co.za">nathan.archer@flightec.co.za</a>.</p>
+          <button type="button" class="btn btn-ghost" id="formSuccessReset">Send another message</button>
+        </div>
       </div>
     </div>
 
@@ -2148,7 +2193,7 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
 <footer class="site-footer">
     <div class="footer-top section-inner">
       <div class="footer-col footer-brand">
-        <img src="img/logo-color.png" alt="FLIGHTEC"/>
+        <img src="img/logo-white.png" alt="FLIGHTEC"/>
         <p>Above. Below. Beyond.</p>
         <p class="footer-brand-desc">Flightec is Southern Africa's specialist partner in mining and mineral exploration, delivering precise, high-resolution data from above and below the surface.</p>
         <div class="footer-social">
@@ -2784,28 +2829,41 @@ function makeVisibilitySpy(items, onChange){
   });
 })();
 
-// Contact form: this is a static site with no backend to post to, so
-// "sending" the message means handing it to the visitor's own email client
-// instead -- build a mailto: link from the field values (matching the
-// mailto CTAs used everywhere else on the page) and navigate to it.
-//
-// NOTE: a mailto: link can only open the VISITOR's own email client with a
-// pre-filled draft -- it cannot silently send mail itself, cannot route
-// automatically to a specific staff member's inbox, and cannot fire an
-// automated acknowledgement back to the customer. Any of that (per the
-// brief: route to Nathan Archer, auto-ack the customer) needs a real form
-// backend (e.g. Formspree, Netlify Forms) wired up server-side -- flagged
-// separately, not something this static file alone can do.
+// Contact form: submits to Formspree (https://formspree.io/f/mljdyjng) via
+// fetch() instead of a normal form POST -- this keeps the visitor on the
+// page (no reload, no navigating away to their own email client the way
+// the old mailto: version did) and shows an in-page confirmation instead.
+// Formspree notifies whatever inbox that form is configured to deliver to
+// in its own dashboard -- NOT something this file controls -- so make sure
+// that's set to nathan.archer@flightec.co.za (or wherever these should
+// land) on formspree.io, including completing the one-time destination
+// email confirmation Formspree sends on a form's first real submission.
 (function(){
   var form = document.getElementById('contactForm');
   if(!form) return;
+  var ENDPOINT = 'https://formspree.io/f/mljdyjng';
   var FIELD_LABELS = {
     name: 'Name', company: 'Company', email: 'Email', phone: 'Contact Number',
     location: 'Project Location', service: 'Service Required',
     notes: 'Additional Information'
   };
+  var statusEl = document.getElementById('formStatus');
+  var successEl = document.getElementById('formSuccess');
+  var submitBtn = form.querySelector('button[type="submit"]');
+  var submitBtnDefaultText = submitBtn ? submitBtn.textContent : '';
+
+  function setError(msg){
+    if(statusEl){ statusEl.textContent = msg; statusEl.classList.add('is-error'); }
+  }
+  function clearError(){
+    if(statusEl){ statusEl.textContent = ''; statusEl.classList.remove('is-error'); }
+  }
+
   form.addEventListener('submit', function(e){
     e.preventDefault();
+    if(form.classList.contains('is-submitting')) return; // guard against double-click/double-submit
+    clearError();
+
     var data = {};
     Array.prototype.forEach.call(form.elements, function(el){
       if(!el.name) return;
@@ -2821,16 +2879,53 @@ function makeVisibilitySpy(items, onChange){
         data[el.name] = (el.value || '').trim();
       }
     });
-    var subject = 'Discuss Your Project' + (data.company ? ' — ' + data.company : '');
-    var bodyLines = [];
+
+    var fd = new FormData();
     Object.keys(FIELD_LABELS).forEach(function(key){
-      if(data[key]) bodyLines.push(FIELD_LABELS[key] + ': ' + data[key]);
+      fd.append(key, data[key] || '');
     });
-    var mailto = 'mailto:nathan.archer@flightec.co.za'
-      + '?subject=' + encodeURIComponent(subject)
-      + '&body=' + encodeURIComponent(bodyLines.join('\n'));
-    window.location.href = mailto;
+    // Formspree's own special fields: controls the notification email's
+    // subject line, and the honeypot field (empty for real visitors) --
+    // see the hidden _gotcha input in the form markup above.
+    fd.append('_subject', 'Discuss Your Project' + (data.company ? ' — ' + data.company : ''));
+    fd.append('_gotcha', data._gotcha || '');
+
+    form.classList.add('is-submitting');
+    if(submitBtn){ submitBtn.textContent = 'Sending…'; }
+
+    fetch(ENDPOINT, {
+      method: 'POST',
+      body: fd,
+      headers: { 'Accept': 'application/json' }
+    }).then(function(res){
+      if(res.ok){
+        form.hidden = true;
+        if(successEl) successEl.hidden = false;
+      } else {
+        return res.json().catch(function(){ return null; }).then(function(body){
+          var msg = (body && body.errors && body.errors.length)
+            ? body.errors.map(function(e2){ return e2.message; }).join(', ')
+            : 'Something went wrong sending your message — please try again, or email us directly at nathan.archer@flightec.co.za.';
+          setError(msg);
+        });
+      }
+    }).catch(function(){
+      setError('Something went wrong sending your message — please check your connection and try again, or email us directly at nathan.archer@flightec.co.za.');
+    }).finally(function(){
+      form.classList.remove('is-submitting');
+      if(submitBtn){ submitBtn.textContent = submitBtnDefaultText; }
+    });
   });
+
+  var resetBtn = document.getElementById('formSuccessReset');
+  if(resetBtn){
+    resetBtn.addEventListener('click', function(){
+      form.reset();
+      form.hidden = false;
+      if(successEl) successEl.hidden = true;
+      clearError();
+    });
+  }
 })();
 
 // Light/dark theme toggle. Every themed colour on the page is a CSS custom
@@ -2949,11 +3044,9 @@ function makeVisibilitySpy(items, onChange){
   }
 
   HeroReveal.prototype._check = function () {
-    // Touch/mobile no longer gets the reveal effect at all, per client
-    // request -- only a real mouse (hover + fine pointer, i.e. desktop)
-    // triggers it now. this.mqTouch is left wired up above in case it's
-    // ever wanted back, it's just not consulted here any more.
-    var want = this.mq.matches && !this.rm.matches;
+    // Re-enabled on touch/mobile per client request (it was briefly
+    // disabled there, then asked back on -- management likes it on both).
+    var want = (this.mq.matches || this.mqTouch.matches) && !this.rm.matches;
     if (want && !this.enabled) this._enable();
     else if (!want && this.enabled) this._disable();
   };

@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="en" data-theme="dark">
 <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TP6BCJLD');</script>
+<!-- End Google Tag Manager -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FLIGHTEC — Above. Below. Beyond.</title>
@@ -212,6 +219,14 @@ h2{font-size:clamp(1.9rem,3.2vw,2.7rem);margin-bottom:20px;}
   border:1px solid transparent;
   transition:all .25s ease;
   white-space:nowrap;
+  /* Every .btn so far was an <a> styled as a button, which has no default
+     background -- .btn-ghost relies on that, setting text/border colour
+     only. A real <button> element (like the "Send another message" one)
+     carries its own default white/grey background from the browser, which
+     .btn-ghost's light text then sat on invisibly until hover. Resetting
+     it here covers any future <button>, without affecting btn-primary/
+     btn-nav, which both already set their own explicit background. */
+  background:transparent;
 }
 .btn-primary{background:var(--accent);color:var(--btn-primary-text);}
 .btn-primary:hover{background:var(--accent-2);}
@@ -1885,6 +1900,10 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
 </script>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TP6BCJLD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 <div id="bgFixed" aria-hidden="true"></div>
 <div id="siteRoot" data-theme="dark">

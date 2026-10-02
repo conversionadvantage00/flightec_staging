@@ -156,6 +156,13 @@ body{background:var(--bg);transition:background .4s ease,color .4s ease;}
    without its own background lets body's background keep propagating to
    the canvas the normal way, underneath #bgFixed, same as before.) */
 html{scroll-behavior:smooth;overscroll-behavior-y:none;}
+/* The nav is a floating fixed-position pill, not a normal document-flow
+   header, so jumping to a section via its #id anchor (nav link, footer
+   link, or a browser "back" with a hash in the URL) used to land that
+   section's very top flush with the viewport top -- right behind the
+   pill, hiding the headline underneath it. This gives every anchor
+   target some breathing room above it to clear the pill. */
+#about,#services,#operate,#contact{scroll-margin-top:110px;}
 body{
   font-family:'Aptos',-apple-system,BlinkMacSystemFont,sans-serif;
   background:var(--bg);
@@ -1765,6 +1772,11 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
   display:grid;grid-template-columns:1fr 1fr;
   margin-top:24px;
 }
+/* No map canvas above it for now (see the HTML comment by .location-map),
+   so there's nothing for that top margin to separate from -- drop it and
+   add a little breathing room on the card itself instead. */
+.location-map--no-canvas .location-offices{margin-top:0;}
+.location-map--no-canvas{padding-top:40px;padding-bottom:40px;}
 .location-office{text-align:center;padding:6px 16px;}
 .location-office + .location-office{border-left:1px solid rgba(255,255,255,.08);}
 .location-office + .location-office .location-map-tag::before{animation-delay:-1.3s;}
@@ -1932,7 +1944,13 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
       <p class="svc-group-subhead">Airborne Geophysical Surveys and Mapping</p>
       <p class="svc-group-intro">Using advanced unmanned systems, we acquire high-resolution data across large, remote and challenging environments — accessing difficult terrain that can be impractical to survey using conventional methods.</p>
       <div class="svc-grid">
-        <div class="svc" data-slot="svc-magnetic">
+        <div class="svc" data-slot="svc-topo">
+      <div class="svc-media" data-bg="img/svc-topo.jpg" data-slot-media="svc-topo"></div>
+      <h3>Topographic Surveys</h3>
+      <p>Understand the terrain at the level where decisions are made.</p>
+      <button type="button" class="svc-more" data-slot="svc-topo">Learn More <span aria-hidden="true">&rarr;</span></button>
+    </div>
+<div class="svc" data-slot="svc-magnetic">
       <div class="svc-media" data-bg="img/svc-magnetic.jpg" data-slot-media="svc-magnetic"></div>
       <h3>Magnetic Surveys</h3>
       <p>See what greater magnetic resolution can reveal.</p>
@@ -1943,12 +1961,6 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
       <h3>Radiometric Surveys</h3>
       <p>Move from broad regional context to detailed precision.</p>
       <button type="button" class="svc-more" data-slot="svc-radiometric">Learn More <span aria-hidden="true">&rarr;</span></button>
-    </div>
-<div class="svc" data-slot="svc-topo">
-      <div class="svc-media" data-bg="img/svc-topo.jpg" data-slot-media="svc-topo"></div>
-      <h3>Topographic Surveys</h3>
-      <p>Understand the terrain at the level where decisions are made.</p>
-      <button type="button" class="svc-more" data-slot="svc-topo">Learn More <span aria-hidden="true">&rarr;</span></button>
     </div>
       </div>
     </div>
@@ -2054,7 +2066,6 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
           <p class="contact-person-name">Nathan Archer</p>
           <a class="contact-person-line" href="mailto:nathan.archer@flightec.co.za">nathan.archer@flightec.co.za</a>
           <a class="contact-person-line" href="tel:+27726991888">+27 72 699 1888</a>
-          <a class="contact-person-line contact-schedule-btn" href="#" target="_blank" rel="noopener">Schedule a Call &rarr;</a>
         </div>
 
         <div class="contact-person">
@@ -2104,18 +2115,18 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
       </div>
     </div>
 
-    <!-- One embedded Google My Maps view of Africa with pins for both
-         offices (Windhoek and Knysna), with the two offices labelled
-         underneath. The map's pins and default view are set in My Maps. -->
+    <!-- The embedded Google My Maps view of Africa is removed for now, per
+         client request, until their Google My Business listing is live.
+         The two offices (Windhoek and Knysna) still need to be shown --
+         just as plain labelled entries, no map -- so re-add the
+         .location-map-canvas block above once GMB is ready instead of
+         rebuilding this from scratch. -->
     <div class="section-inner">
       <div class="location-maps-head">
-        <h3 class="location-maps-heading">We Operate From</h3>
+        <h3 class="location-maps-heading">Where We Operate From</h3>
       </div>
       <div class="location-maps location-maps--single">
-        <div class="location-map">
-          <div class="location-map-canvas location-map-canvas--iframe location-map-canvas--africa">
-            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1Z95qpkCpU2lOFhOuaEusRIHIJ5pFSSo&ehbc=2E312F&ll=-24,21&z=4" title="Map of Africa showing Flightec's offices in Windhoek and Knysna" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
-          </div>
+        <div class="location-map location-map--no-canvas">
           <div class="location-offices">
             <div class="location-office">
               <span class="location-map-place">Windhoek</span>
@@ -2938,7 +2949,11 @@ function makeVisibilitySpy(items, onChange){
   }
 
   HeroReveal.prototype._check = function () {
-    var want = (this.mq.matches || this.mqTouch.matches) && !this.rm.matches;
+    // Touch/mobile no longer gets the reveal effect at all, per client
+    // request -- only a real mouse (hover + fine pointer, i.e. desktop)
+    // triggers it now. this.mqTouch is left wired up above in case it's
+    // ever wanted back, it's just not consulted here any more.
+    var want = this.mq.matches && !this.rm.matches;
     if (want && !this.enabled) this._enable();
     else if (!want && this.enabled) this._disable();
   };

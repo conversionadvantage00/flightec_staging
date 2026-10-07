@@ -14,9 +14,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta name="description" content="FLIGHTEC integrates unmanned aircraft systems with applied geophysics for mining and mineral exploration — magnetic and radiometric surveys, mapping, and turnkey UAS engineering.">
 <!-- Favicon -- bold "F" on a solid white square (per client request; the
      earlier version used a transparent background, which rendered dark/
-     invisible in a dark browser tab bar). -->
-<link rel="icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAAAIACyAAAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAAQAAAAEAgCAAAAkJFoNgAAAHlJREFUeJxj/P//PwMpgIkk1XTRwILGl1QzMI6rgnO31IQR0PD//7/fP79fWTf16dVTRDnp/7//f378+PvjOy4nMWIGq13uBAjj6+snZ1f0EHASAwPD7x/fj8+uxGUDllD68+MHLtXYNfz+idMDDFj9gB8MwqRBsgYAzGYwDY95oxQAAAAASUVORK5CYII=">
-<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAA30lEQVR4nO3WMQrCMBQG4FcRN6mzdHEquvcEzt7C23gNb+DmAUQpCC4WRAVBHCwqiIs0eb9Di3YommgzCMn68vKR/DyIA4BMrorR0y1ggf8AqiqbWkG33esXluLVPBwOfgXAzEIUlyS/71UDABYJEV120Wm9yJfu13MpAEshiOh23G9nY5UWPYAY6RN9fJAvAQAsBRHV6o1mJ8iXDsuwFCAL2fV81/NVWjQBZikSrXP1AEKWQRxNN5NR+cAzA8BUyFkGYEMAI50DNgWA00mGlEaA16Dp38Cx3xYLWMA88AAo6oFdJWZ2DQAAAABJRU5ErkJggg==">
+     invisible in a dark browser tab bar).
+
+     IMPORTANT: this used to be two data: URIs inline here. Browsers are
+     fine with that, but Google's own favicon documentation
+     (developers.google.com/search/docs/appearance/favicon-in-search)
+     says Googlebot-Image must be able to CRAWL the favicon file as its
+     own resource -- a data: URI isn't a fetchable URL, so Search was
+     falling back to a generic globe icon in results even though the
+     favicon displays correctly in every browser. Switched to real files
+     (favicon.ico, favicon-32x32.png, favicon-16x16.png) that ship
+     alongside index.html at the repo root -- don't revert this back to
+     data: URIs even though it looks like a simplification. -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAFE0lEQVR4nO3dwYocVRSA4ZoxmJCQjQiu3bhRXLj1OXwIN76IzyQoLtwJQRHcxIVgxEVAhmRpuZgkJKd6Zrrr3u5b5/T3hWwzd8g/J6eruisX0wY8fPR4Hn0G2r18cXUx+gxDDiDg8zAi8JN9QRGft1PFfdQvImJ2OWbcR/mDhcw+jhH2Ze8/UMzs6xitdPsJETItek3rLhNazLTq1VDTT4WQOYaWab16QouZY2lpa1XQYubY1jZ2cNBi5lTWtHZQ0GLm1A5tbu+gxcwoh7S3V9BiZrR9G7wzaDGzFfu02P3WN4x0a9CmM1tzV5M3Bi1mtuq2Nq0clLIzaNOZrbup0UXQYiaLXa1aOSjlnaBNZ7KJzZrQlCJoSnkTtHWDrN5u14SmFEFTyuU0WTfI73XDJjSlCJpSBE0pF/ZnKjGhKUXQlCJoShE0pQiaUgRNKYKmFEFTiqApRdCUImhKETSlCJpSBE0pgqYUQVOKoCnl3ugDbM3nX30zffDxp6OP0Wye/5t++Pbr0cc4OUEH86vf2VX4HtYQdDRP0zQXyKHC97CCoBfmaS4QQ4XvYQ0vCinFhI7mucY/1xW+hxUEHVz3nD+GCt/DGoJecJ0jM0EHLnLkJujIDp2aoBesHJkJOvKiMDVBRwZ0aoIO5le/1nr+9Nfp3z9/73iidUxoXml7UXj17I/p2ZMfO56HQwg6qrJynClBB60rB2MJOmq9s3Kmu+tWCDqqcmPlTAk6aF2h/SiMJeiFxgltug8l6KjIncJzJegFS0dmgo70nJqgg7nxQ7J6HkvQC24VZibowGXo3AS9kyU6K0FHrSNaz0MJOppbXxQqeiRPTqIUEzq4frOdlSMrQUeNO/RHn305ffjJFx0PtL+/fv5uev70lyFfeysEvdB2Hfre/QfTvfsP+h3nAO+9P+brbomgg8zXobOeuydBLyQu2gIv6Oh64RBGVoKOMr+VI+u5OxJ0lHmJVrSglzzGIDNBR6knNILeJWvPWc/dkaCDzFc5sp67J0FHVo7UBB2k7jnruTsS9ELbhei/n3w//fPbT/2Ow0EEHXlYY2qCDjzGIDefWKEUEzpq/EyhET2WoKPmyxyKHknQO4kyK0EHzRc5up2ENQS94PGjmQk6mL0oTE3QUeZPrCDo3awcWQk6an22nZ6HEvSC69CZCTqwQucm6MjzoVMTdNR6Z0XRQwk6mBsfYyDnsQS9iwGdlqAj77ZLTdBB68rBWIKOvDcpNUFHc9v/sWK6jyXoBbdWMhP0QuuNFT8MIwk6SP3kJAS9m6KzEnTQ+okV030sQS+4sZKZJydRigkd+ZBsaoKOvH00NUEHbqvkdvHw0WN/f5ThRSGlCJpSBE0pgqYUQVOKoClF0JQiaEoRNKUImlIETSmCphRBU4qgKUXQlCJoShE0pVy+fHF1MfoQ0MPLF1cXJjSlCJpSBE0pl9N0vXuMPgi0eN2wCU0pgqaUN0FbO8jq7XZNaEoRNKW8E7S1g2xisyY0pSyCNqXJYlerOye0qNm6mxq1clDKjUGb0mzVbW3eOqFFzdbc1aSVg1LuDNqUZiv2aXGvCS1qRtu3wb1XDlEzyiHtHbRDi5pTO7S5g18UippTWdPaqqscoubY1ja2+rKdqDmWlra6ROm/V6aHHkOyy40V05pWvRrqHqJpzSF6D8Put75Na/Z1jFaOGp9pzS7HHHonm6biPm+n+pd7yHog7vMwYv3cxL4r8Bq28Prpf7vGCowuFMiSAAAAAElFTkSuQmCC">
 <link rel="canonical" href="https://flightec.co.za/">
 <meta property="og:type" content="website">
@@ -784,6 +796,135 @@ body.menu-open .nav{z-index:201;}
 }
 body.modal-open{overflow:hidden;}
 
+/* Mining Indaba 2027 popup -- a small promotional modal announcing Flightec
+   will be at the event, with a lead-capture form (Name, Company, Email,
+   Phone/WhatsApp) so a visitor can ask to meet up there. Deliberately
+   reuses the site's existing modal/form language rather than introducing
+   new UI: same .svc-modal backdrop treatment, same --modal-bg panel colour
+   (already near-black in this dark-only theme, so it doubles as the dark
+   banner strip in the client's own mockup with no extra colour needed),
+   and the exact .form-row input/select styling the contact form already
+   defines -- this block only adds what's genuinely new (the panel's
+   smaller fixed width, the logo/date banner, and the phone country-code
+   row). The submit button stays the site's own accent blue rather than
+   Mining Indaba's orange, to match every other CTA on the page. */
+.indaba-modal{
+  position:fixed;inset:0;z-index:400;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(10,10,12,.6);
+  backdrop-filter:blur(2px);
+  opacity:0;visibility:hidden;
+  padding:24px;
+  transition:opacity .35s ease,visibility 0s linear .35s;
+}
+.indaba-modal.is-open{
+  opacity:1;visibility:visible;
+  transition:opacity .35s ease,visibility 0s linear 0s;
+}
+.indaba-modal-panel{
+  position:relative;
+  width:100%;max-width:700px;max-height:90vh;
+  background:var(--modal-bg);
+  border-radius:18px;
+  overflow:hidden;
+  /* The dark shadow for lift, plus a soft wash of the site's own accent
+     glow (the same rgba(var(--glow),...) token used for hover states on
+     the pillar cards/buttons elsewhere) so the panel reads as "designed"
+     against the dimmed backdrop rather than a flat dark rectangle. */
+  box-shadow:0 40px 100px rgba(0,0,0,.35), 0 4px 24px rgba(0,0,0,.2),
+    0 0 0 1px rgba(var(--glow),.14), 0 0 70px -10px rgba(var(--glow),.35);
+  transform:scale(.94) translateY(10px);
+  opacity:0;
+  transition:transform .45s cubic-bezier(.16,1,.3,1),opacity .4s ease,
+    box-shadow 2.6s ease-in-out;
+}
+.indaba-modal.is-open .indaba-modal-panel{
+  transform:scale(1) translateY(0);
+  opacity:1;
+  transition:transform .45s cubic-bezier(.16,1,.3,1) .05s,opacity .4s ease .05s;
+  /* A slow, subtle breathing of the glow once open -- not a hover effect,
+     just a touch of life while the panel sits on screen. Very low
+     amplitude on purpose ("subtle" flare, not a disco border). */
+  animation:indaba-glow-breathe 5s ease-in-out .5s infinite;
+}
+@keyframes indaba-glow-breathe{
+  0%,100%{box-shadow:0 40px 100px rgba(0,0,0,.35), 0 4px 24px rgba(0,0,0,.2),
+    0 0 0 1px rgba(var(--glow),.14), 0 0 70px -10px rgba(var(--glow),.35);}
+  50%{box-shadow:0 40px 100px rgba(0,0,0,.35), 0 4px 24px rgba(0,0,0,.2),
+    0 0 0 1px rgba(var(--glow),.22), 0 0 90px -10px rgba(var(--glow),.5);}
+}
+@media (prefers-reduced-motion:reduce){
+  .indaba-modal.is-open .indaba-modal-panel{animation:none;}
+}
+.indaba-modal-scroll{max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.indaba-modal-close{
+  position:absolute;top:16px;right:16px;z-index:2;
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.08);
+  color:#fff;border:1px solid rgba(255,255,255,.2);
+  font-size:1.2rem;line-height:1;cursor:pointer;
+  transition:background .2s ease,transform .2s ease;
+}
+.indaba-modal-close:hover{background:rgba(255,255,255,.16);transform:scale(1.06);}
+.indaba-modal-banner{
+  position:relative;overflow:hidden;
+  padding:32px 32px 20px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:14px;
+  border-bottom:1px solid var(--line);
+}
+/* A faint wash of the accent colour behind the logo -- not a visible
+   shape, just enough to lift the flat near-black banner off the page,
+   the same soft-glow idea as the panel's own box-shadow above. */
+.indaba-modal-banner::before{
+  content:"";position:absolute;top:-40%;left:-10%;width:60%;height:180%;
+  background:radial-gradient(circle,rgba(var(--glow),.16),transparent 70%);
+  pointer-events:none;
+}
+/* A thin gradient accent line along the very top edge of the panel --
+   the one deliberately "branded" touch, echoing Mining Indaba's own
+   banner mockup without borrowing its orange. */
+.indaba-modal-banner::after{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:.85;
+}
+.indaba-modal-logo{width:184px;height:auto;display:block;position:relative;}
+.indaba-modal-banner-meta{
+  position:relative;
+  display:flex;flex-wrap:wrap;gap:4px 14px;
+  font-size:0.78rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;
+  color:var(--ink-dim);
+}
+.indaba-modal-body{padding:28px 32px 36px;}
+.indaba-modal-body h2{font-size:1.5rem;line-height:1.3;margin-bottom:10px;color:var(--ink);}
+.indaba-modal-lead{color:var(--ink-dim);font-size:0.94rem;line-height:1.6;margin-bottom:24px;max-width:46ch;}
+.indaba-form{display:flex;flex-direction:column;gap:16px;}
+.indaba-form button[type="submit"]{align-self:stretch;justify-content:center;margin-top:2px;}
+/* Phone/WhatsApp row: a country-code <select> beside the number <input>,
+   both still matched by the shared ".form-row input/select" rule above
+   (it's a descendant selector) so they inherit identical field styling --
+   this only needs to lay the two out side by side. */
+.phone-row{display:flex;gap:8px;}
+.phone-row select{flex:0 0 118px;min-width:0;}
+.phone-row input{flex:1 1 auto;min-width:0;}
+/* On the wider desktop panel there's room to pair Name/Company and
+   Email/Phone side by side instead of one long stacked column -- purely
+   a layout change, every field keeps its existing styling. */
+@media (min-width:560px){
+  .indaba-form{flex-flow:row wrap;column-gap:16px;}
+  .indaba-form .form-row{flex:1 1 calc(50% - 8px);min-width:0;}
+  /* The honeypot input is position:absolute (see markup) so it's already
+     out of flow here; only these two need to stay full-width. */
+  .indaba-form button[type="submit"],
+  .indaba-form .form-status{flex:1 1 100%;}
+}
+@media (max-width:480px){
+  .indaba-modal-banner{padding:26px 20px 18px;}
+  .indaba-modal-body{padding:20px 20px 26px;}
+  .indaba-modal-logo{width:140px;}
+}
+
 /* Process */
 .process{padding:48px 0;background:var(--bg);}
 .process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:40px;margin-top:80px;position:relative;}
@@ -870,8 +1011,10 @@ body.modal-open{overflow:hidden;}
    browser's built-in `[hidden]{display:none}` rule and, being an author
    rule, wins the tie -- so simply setting form.hidden = true in JS would
    NOT actually hide it (it would sit there still flexed open, overlapping
-   the success message). This makes the hidden attribute win explicitly. */
-.contact-form[hidden]{display:none;}
+   the success message). This makes the hidden attribute win explicitly.
+   .indaba-form shares the same display:flex + hidden=true pattern (see
+   its submit handler), so it needs the same override. */
+.contact-form[hidden],.indaba-form[hidden]{display:none;}
 .form-row{display:flex;flex-direction:column;gap:8px;}
 .form-row label{
   font-size:0.76rem;letter-spacing:0.08em;text-transform:uppercase;
@@ -2286,6 +2429,76 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <img id="imgLightboxImg" src="" alt="">
   <p class="img-lightbox-caption" id="imgLightboxCaption"></p>
 </div>
+
+<!-- Mining Indaba 2027 popup -- announces Flightec will be attending and
+     captures a lead-request to meet up there. Opens itself automatically
+     a few seconds after page load (once per browser session -- see
+     TOUCH_JS) rather than needing a trigger element, so it has no
+     data-slot/button wiring like the service popup above. -->
+<div class="indaba-modal" id="indabaModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="indabaModalTitle">
+  <div class="indaba-modal-panel">
+    <button type="button" class="indaba-modal-close" id="indabaModalClose" aria-label="Close"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    <div class="indaba-modal-scroll">
+      <div class="indaba-modal-banner">
+        <img src="img/mining-indaba-logo.png" alt="Mining Indaba" class="indaba-modal-logo">
+        <div class="indaba-modal-banner-meta">
+          <span>8&ndash;11 February 2027</span>
+          <span>CTICC, Cape Town</span>
+        </div>
+      </div>
+      <div class="indaba-modal-body">
+        <h2 id="indabaModalTitle">Flightec will be at Mining Indaba 2027.</h2>
+        <p class="indaba-modal-lead">Let us know you'd like to meet, and our team will be in touch to schedule a time at the Indaba.</p>
+
+        <form class="indaba-form" id="indabaForm">
+          <div class="form-row">
+            <label for="im-name">Name &amp; Surname</label>
+            <input id="im-name" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div class="form-row">
+            <label for="im-company">Company</label>
+            <input id="im-company" name="company" type="text" autocomplete="organization" required>
+          </div>
+          <div class="form-row">
+            <label for="im-email">Email</label>
+            <input id="im-email" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div class="form-row">
+            <label for="im-phone">Phone / WhatsApp Number</label>
+            <div class="phone-row">
+              <select id="im-phone-code" name="phone_code" aria-label="Country code">
+                <option value="+27" selected>+27 (South Africa)</option>
+                <option value="+264">+264 (Namibia)</option>
+                <option value="+267">+267 (Botswana)</option>
+                <option value="+263">+263 (Zimbabwe)</option>
+                <option value="+260">+260 (Zambia)</option>
+                <option value="+258">+258 (Mozambique)</option>
+                <option value="+243">+243 (DR Congo)</option>
+                <option value="+233">+233 (Ghana)</option>
+                <option value="+234">+234 (Nigeria)</option>
+                <option value="+254">+254 (Kenya)</option>
+                <option value="+255">+255 (Tanzania)</option>
+                <option value="+244">+244 (Angola)</option>
+                <option value="+44">+44 (UK)</option>
+                <option value="+1">+1 (US / Canada)</option>
+                <option value="+61">+61 (Australia)</option>
+              </select>
+              <input id="im-phone" name="phone_number" type="tel" autocomplete="tel" placeholder="82 123 4567" required>
+            </div>
+          </div>
+          <!-- Honeypot -- same pattern as the main contact form. -->
+          <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+          <button type="submit" class="btn btn-primary btn-lg">Schedule a Meeting</button>
+          <p class="form-status" id="indabaFormStatus" role="alert"></p>
+        </form>
+        <div class="form-success" id="indabaFormSuccess" hidden>
+          <p class="form-success-title">Thanks &mdash; we'll be in touch.</p>
+          <p class="form-success-body">We've received your details and will reach out to confirm a time to meet at Mining Indaba 2027. If it's urgent, you can also reach us directly at <a href="mailto:nathan.archer@flightec.co.za">nathan.archer@flightec.co.za</a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 
 <script>
@@ -2872,6 +3085,116 @@ function makeVisibilitySpy(items, onChange){
       clearError();
     });
   }
+})();
+
+// Mining Indaba 2027 popup: opens itself automatically a few seconds after
+// the page loads (once per browser tab session -- sessionStorage, so it
+// doesn't nag on every reload but does come back in a fresh tab) and
+// submits its own lead-request form to the same Formspree endpoint the
+// main contact form uses, tagged with its own _subject line so it's easy
+// to tell apart in the inbox. Open/close mechanics (backdrop click,
+// Escape, close button, body.modal-open scroll lock) mirror the "Above"
+// service popup above exactly.
+(function(){
+  var modal = document.getElementById('indabaModal');
+  var form = document.getElementById('indabaForm');
+  if(!modal || !form) return;
+  var closeBtn = document.getElementById('indabaModalClose');
+  var SHOWN_KEY = 'flightec_indaba_popup_shown';
+
+  function open(){
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+  }
+  function close(){
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+  }
+
+  try{
+    if(!sessionStorage.getItem(SHOWN_KEY)){
+      window.setTimeout(function(){
+        // Don't pop up over another modal the visitor already has open.
+        if(!document.body.classList.contains('modal-open')) open();
+        sessionStorage.setItem(SHOWN_KEY, '1');
+      }, 6000);
+    }
+  } catch(e){
+    // sessionStorage unavailable (private browsing etc.) -- just skip the
+    // auto-open rather than error; the popup simply won't appear on its
+    // own in that case.
+  }
+
+  closeBtn.addEventListener('click', close);
+  modal.addEventListener('click', function(e){
+    if(e.target === modal) close();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && modal.classList.contains('is-open')) close();
+  });
+
+  // Form submission -- same Formspree endpoint and fetch() pattern as the
+  // main contact form, with the two phone fields combined into one value.
+  var ENDPOINT = 'https://formspree.io/f/mljdyjng';
+  var statusEl = document.getElementById('indabaFormStatus');
+  var successEl = document.getElementById('indabaFormSuccess');
+  var submitBtn = form.querySelector('button[type="submit"]');
+  var submitBtnDefaultText = submitBtn ? submitBtn.textContent : '';
+
+  function setError(msg){
+    if(statusEl){ statusEl.textContent = msg; statusEl.classList.add('is-error'); }
+  }
+  function clearError(){
+    if(statusEl){ statusEl.textContent = ''; statusEl.classList.remove('is-error'); }
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(form.classList.contains('is-submitting')) return;
+    clearError();
+
+    var data = {};
+    Array.prototype.forEach.call(form.elements, function(el){
+      if(!el.name) return;
+      data[el.name] = (el.value || '').trim();
+    });
+
+    var fd = new FormData();
+    fd.append('name', data.name || '');
+    fd.append('company', data.company || '');
+    fd.append('email', data.email || '');
+    fd.append('phone', (data.phone_code || '') + ' ' + (data.phone_number || ''));
+    fd.append('_subject', 'Mining Indaba 2027 — Meeting Request' + (data.company ? ' — ' + data.company : ''));
+    fd.append('_gotcha', data._gotcha || '');
+
+    form.classList.add('is-submitting');
+    if(submitBtn){ submitBtn.textContent = 'Sending…'; }
+
+    fetch(ENDPOINT, {
+      method: 'POST',
+      body: fd,
+      headers: { 'Accept': 'application/json' }
+    }).then(function(res){
+      if(res.ok){
+        form.hidden = true;
+        if(successEl) successEl.hidden = false;
+      } else {
+        return res.json().catch(function(){ return null; }).then(function(body){
+          var msg = (body && body.errors && body.errors.length)
+            ? body.errors.map(function(e2){ return e2.message; }).join(', ')
+            : 'Something went wrong sending your request — please try again, or email us directly at nathan.archer@flightec.co.za.';
+          setError(msg);
+        });
+      }
+    }).catch(function(){
+      setError('Something went wrong sending your request — please check your connection and try again, or email us directly at nathan.archer@flightec.co.za.');
+    }).finally(function(){
+      form.classList.remove('is-submitting');
+      if(submitBtn){ submitBtn.textContent = submitBtnDefaultText; }
+    });
+  });
 })();
 
 // Light/dark theme toggle. Every themed colour on the page is a CSS custom

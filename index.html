@@ -804,10 +804,14 @@ body.modal-open{overflow:hidden;}
    (already near-black in this dark-only theme, so it doubles as the dark
    banner strip in the client's own mockup with no extra colour needed),
    and the exact .form-row input/select styling the contact form already
-   defines -- this block only adds what's genuinely new (the panel's
-   smaller fixed width, the logo/date banner, and the phone country-code
-   row). The submit button stays the site's own accent blue rather than
-   Mining Indaba's orange, to match every other CTA on the page. */
+   defines -- this block only adds what's genuinely new (the panel's own
+   width and the logo/date banner). The phone field is a single free-text
+   input (visitors type their own country code, e.g. "+27 82 123 4567")
+   rather than a code picker -- Mining Indaba draws delegates from well
+   beyond Africa, so a short dropdown of regional codes undersold it, and
+   a full ~200-country list was more dropdown than the field warranted.
+   The submit button stays the site's own accent blue rather than Mining
+   Indaba's orange, to match every other CTA on the page. */
 .indaba-modal{
   position:fixed;inset:0;z-index:400;
   display:flex;align-items:center;justify-content:center;
@@ -901,13 +905,6 @@ body.modal-open{overflow:hidden;}
 .indaba-modal-lead{color:var(--ink-dim);font-size:0.94rem;line-height:1.6;margin-bottom:24px;max-width:46ch;}
 .indaba-form{display:flex;flex-direction:column;gap:16px;}
 .indaba-form button[type="submit"]{align-self:stretch;justify-content:center;margin-top:2px;}
-/* Phone/WhatsApp row: a country-code <select> beside the number <input>,
-   both still matched by the shared ".form-row input/select" rule above
-   (it's a descendant selector) so they inherit identical field styling --
-   this only needs to lay the two out side by side. */
-.phone-row{display:flex;gap:8px;}
-.phone-row select{flex:0 0 118px;min-width:0;}
-.phone-row input{flex:1 1 auto;min-width:0;}
 /* On the wider desktop panel there's room to pair Name/Company and
    Email/Phone side by side instead of one long stacked column -- purely
    a layout change, every field keeps its existing styling. */
@@ -2465,26 +2462,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
           <div class="form-row">
             <label for="im-phone">Phone / WhatsApp Number</label>
-            <div class="phone-row">
-              <select id="im-phone-code" name="phone_code" aria-label="Country code">
-                <option value="+27" selected>+27 (South Africa)</option>
-                <option value="+264">+264 (Namibia)</option>
-                <option value="+267">+267 (Botswana)</option>
-                <option value="+263">+263 (Zimbabwe)</option>
-                <option value="+260">+260 (Zambia)</option>
-                <option value="+258">+258 (Mozambique)</option>
-                <option value="+243">+243 (DR Congo)</option>
-                <option value="+233">+233 (Ghana)</option>
-                <option value="+234">+234 (Nigeria)</option>
-                <option value="+254">+254 (Kenya)</option>
-                <option value="+255">+255 (Tanzania)</option>
-                <option value="+244">+244 (Angola)</option>
-                <option value="+44">+44 (UK)</option>
-                <option value="+1">+1 (US / Canada)</option>
-                <option value="+61">+61 (Australia)</option>
-              </select>
-              <input id="im-phone" name="phone_number" type="tel" autocomplete="tel" placeholder="82 123 4567" required>
-            </div>
+            <input id="im-phone" name="phone" type="tel" autocomplete="tel" placeholder="+27 82 123 4567" required>
           </div>
           <!-- Honeypot -- same pattern as the main contact form. -->
           <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
@@ -3165,7 +3143,7 @@ function makeVisibilitySpy(items, onChange){
     fd.append('name', data.name || '');
     fd.append('company', data.company || '');
     fd.append('email', data.email || '');
-    fd.append('phone', (data.phone_code || '') + ' ' + (data.phone_number || ''));
+    fd.append('phone', data.phone || '');
     fd.append('_subject', 'Mining Indaba 2027 — Meeting Request' + (data.company ? ' — ' + data.company : ''));
     fd.append('_gotcha', data._gotcha || '');
 

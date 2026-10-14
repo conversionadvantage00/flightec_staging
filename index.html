@@ -923,6 +923,87 @@ body.modal-open{overflow:hidden;}
   .indaba-modal-logo{width:140px;}
 }
 
+/* Calendly scheduling popup -- opens in the same visual "feel" as the
+   Mining Indaba popup above (same backdrop blur, glow box-shadow, breathing
+   animation, accent top line) but its body is just Calendly's own booking
+   widget loaded in an iframe -- there's no form of our own to style here.
+   Wider and taller than the Indaba panel since Calendly's own widget needs
+   real room to show a calendar + time slots, not a handful of form fields. */
+.calendly-modal{
+  position:fixed;inset:0;z-index:400;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(10,10,12,.6);
+  backdrop-filter:blur(2px);
+  opacity:0;visibility:hidden;
+  padding:24px;
+  transition:opacity .35s ease,visibility 0s linear .35s;
+}
+.calendly-modal.is-open{
+  opacity:1;visibility:visible;
+  transition:opacity .35s ease,visibility 0s linear 0s;
+}
+.calendly-modal-panel{
+  position:relative;
+  width:100%;max-width:900px;height:85vh;max-height:820px;
+  background:var(--modal-bg);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,.35), 0 4px 24px rgba(0,0,0,.2),
+    0 0 0 1px rgba(var(--glow),.14), 0 0 70px -10px rgba(var(--glow),.35);
+  transform:scale(.94) translateY(10px);
+  opacity:0;
+  transition:transform .45s cubic-bezier(.16,1,.3,1),opacity .4s ease,
+    box-shadow 2.6s ease-in-out;
+}
+.calendly-modal.is-open .calendly-modal-panel{
+  transform:scale(1) translateY(0);
+  opacity:1;
+  transition:transform .45s cubic-bezier(.16,1,.3,1) .05s,opacity .4s ease .05s;
+  animation:calendly-glow-breathe 5s ease-in-out .5s infinite;
+}
+@keyframes calendly-glow-breathe{
+  0%,100%{box-shadow:0 40px 100px rgba(0,0,0,.35), 0 4px 24px rgba(0,0,0,.2),
+    0 0 0 1px rgba(var(--glow),.14), 0 0 70px -10px rgba(var(--glow),.35);}
+  50%{box-shadow:0 40px 100px rgba(0,0,0,.35), 0 4px 24px rgba(0,0,0,.2),
+    0 0 0 1px rgba(var(--glow),.22), 0 0 90px -10px rgba(var(--glow),.5);}
+}
+@media (prefers-reduced-motion:reduce){
+  .calendly-modal.is-open .calendly-modal-panel{animation:none;}
+}
+.calendly-modal-close{
+  position:absolute;top:16px;right:16px;z-index:2;
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.08);
+  color:#fff;border:1px solid rgba(255,255,255,.2);
+  font-size:1.2rem;line-height:1;cursor:pointer;
+  transition:background .2s ease,transform .2s ease;
+}
+.calendly-modal-close:hover{background:rgba(255,255,255,.16);transform:scale(1.06);}
+.calendly-modal-frame-wrap{position:relative;width:100%;height:100%;}
+/* The same thin accent gradient line used on the Indaba banner, here along
+   the very top edge of the panel since there's no banner of our own to put
+   it on. */
+.calendly-modal-frame-wrap::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;z-index:1;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:.85;
+}
+.calendly-modal iframe{width:100%;height:100%;border:0;display:block;}
+.calendly-modal-loading{
+  position:absolute;inset:0;z-index:0;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ink-dim);font-size:0.9rem;letter-spacing:0.02em;
+}
+/* Same [hidden]-vs-display:flex specificity issue fixed twice already on
+   .contact-form/.indaba-form -- this element sets display:flex too, so it
+   needs the same explicit override once Calendly's iframe has loaded and
+   this gets hidden. */
+.calendly-modal-loading[hidden]{display:none;}
+@media (max-width:600px){
+  .calendly-modal-panel{height:90vh;max-height:none;border-radius:14px;}
+}
+
 /* Process */
 .process{padding:48px 0;background:var(--bg);}
 .process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:40px;margin-top:80px;position:relative;}
@@ -2059,13 +2140,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="nav-inner">
     <a href="#top" class="brand"><img src="img/logo-color.png" alt="FLIGHTEC"/></a>
     <nav class="nav-links"><a href="#about">About</a><a href="#services">Services</a><a href="#operate">Where We Operate</a><a href="#contact">Contact</a></nav>
-    <a href="#contactForm" class="btn btn-nav">Schedule a Call</a>
+    <a href="#contactForm" class="btn btn-nav" data-calendly-trigger>Schedule a Call</a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 </header>
 <div class="mobile-menu" id="mobileMenu">
   <nav class="mobile-menu-links"><a href="#about">About</a><a href="#services">Services</a><a href="#operate">Where We Operate</a><a href="#contact">Contact</a></nav>
-  <a href="#contactForm" class="btn btn-primary btn-lg mobile-menu-cta">Schedule a Call</a>
+  <a href="#contactForm" class="btn btn-primary btn-lg mobile-menu-cta" data-calendly-trigger>Schedule a Call</a>
 </div>
 
 <main id="top">
@@ -2267,6 +2348,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <p class="contact-person-name">Nathan Archer</p>
           <a class="contact-person-line" href="mailto:nathan.archer@flightec.co.za">nathan.archer@flightec.co.za</a>
           <a class="contact-person-line" href="tel:+27726991888">+27 72 699 1888</a>
+          <a class="contact-person-line contact-schedule-btn" href="#contactForm" data-calendly-trigger>Schedule a Call</a>
         </div>
 
         <div class="contact-person">
@@ -2475,6 +2557,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <p class="form-success-body">We've received your details and will reach out to confirm a time to meet at Mining Indaba 2027. If it's urgent, you can also reach us directly at <a href="mailto:nathan.archer@flightec.co.za">nathan.archer@flightec.co.za</a>.</p>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Calendly scheduling popup -- same open/close mechanics and visual
+     "feel" as the Mining Indaba modal above (backdrop blur, glow panel,
+     breathing shadow, accent line), triggered from any element on the page
+     marked data-calendly-trigger (the two nav "Schedule a Call" buttons,
+     plus the one under Nathan Archer's contact details). Its iframe has no
+     src in the markup -- JS sets it the first time the modal is opened, so
+     the page never makes a request to Calendly until a visitor actually
+     clicks "Schedule a Call". -->
+<div class="calendly-modal" id="calendlyModal" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Schedule a call with Flightec">
+  <div class="calendly-modal-panel">
+    <button type="button" class="calendly-modal-close" id="calendlyModalClose" aria-label="Close"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    <div class="calendly-modal-frame-wrap">
+      <p class="calendly-modal-loading" id="calendlyModalLoading">Loading scheduler&hellip;</p>
+      <iframe id="calendlyModalFrame" title="Schedule a call with Flightec" loading="lazy"></iframe>
     </div>
   </div>
 </div>
@@ -3174,6 +3274,61 @@ function makeVisibilitySpy(items, onChange){
       if(submitBtn){ submitBtn.textContent = submitBtnDefaultText; }
     });
   });
+})();
+
+// Calendly scheduling popup -- opens in the same visual "feel" as the
+// Mining Indaba popup above (same open/close mechanics: backdrop click,
+// Escape, close button, body.modal-open scroll lock) but its body is just
+// Calendly's own booking widget. Every "Schedule a Call" trigger on the
+// page is marked data-calendly-trigger rather than hunted down by class or
+// href, so new triggers can be added anywhere without touching this script.
+(function(){
+  var modal = document.getElementById('calendlyModal');
+  if(!modal) return;
+  var closeBtn = document.getElementById('calendlyModalClose');
+  var frame = document.getElementById('calendlyModalFrame');
+  var loadingEl = document.getElementById('calendlyModalLoading');
+  // embed_domain is required by Calendly for iframe embeds; hide_gdpr_banner
+  // keeps their own cookie-consent strip out of this already-dark panel.
+  var CALENDLY_URL = 'https://calendly.com/nathan-archer-flightec/30-minute-meeting?embed_domain=flightec.co.za&embed_type=Inline&hide_gdpr_banner=1';
+  var frameLoaded = false;
+
+  function open(){
+    if(!frameLoaded && frame){
+      frame.src = CALENDLY_URL;
+      frameLoaded = true;
+    }
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+  }
+  function close(){
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+  }
+
+  if(frame){
+    frame.addEventListener('load', function(){
+      if(loadingEl) loadingEl.hidden = true;
+    });
+  }
+
+  if(closeBtn) closeBtn.addEventListener('click', close);
+  modal.addEventListener('click', function(e){
+    if(e.target === modal) close();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && modal.classList.contains('is-open')) close();
+  });
+
+  var triggers = document.querySelectorAll('[data-calendly-trigger]');
+  for(var i = 0; i < triggers.length; i++){
+    triggers[i].addEventListener('click', function(e){
+      e.preventDefault();
+      open();
+    });
+  }
 })();
 
 // Light/dark theme toggle. Every themed colour on the page is a CSS custom

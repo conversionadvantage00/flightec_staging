@@ -2097,6 +2097,63 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
   .about-grid{position:relative;z-index:2;}
 }
 
+
+/* FAQ -- native <details>/<summary> accordion (keyboard + screen-reader
+   accessible, crawlable, no JS). Sits over the contour layer like the
+   other veiled sections. */
+.faq{padding:52px 0 64px;background:var(--veil-bg);color:var(--pillars-ink);}
+.faq .eyebrow{color:var(--accent);}
+.faq h2{color:var(--pillars-ink);margin-bottom:36px;}
+.faq-list{max-width:860px;margin:0 auto;border-top:1px solid var(--pillars-line);}
+.faq-item{border-bottom:1px solid var(--pillars-line);}
+.faq-item summary{
+  list-style:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+  padding:24px 4px;
+  font-family:'Aptos',Georgia,sans-serif;font-weight:700;
+  font-size:clamp(1rem,1.6vw,1.14rem);line-height:1.35;
+  color:var(--pillars-ink);transition:color .25s ease;
+}
+.faq-item summary::-webkit-details-marker{display:none;}
+.faq-item summary:hover,.faq-item[open] summary{color:var(--accent);}
+.faq-item summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px;}
+.faq-icon{
+  flex:0 0 auto;width:34px;height:34px;border-radius:50%;
+  border:1px solid var(--line-strong);position:relative;
+  transition:border-color .25s ease,transform .3s ease;
+}
+.faq-icon::before,.faq-icon::after{
+  content:"";position:absolute;left:50%;top:50%;width:12px;height:1.5px;
+  background:currentColor;transform:translate(-50%,-50%);transition:transform .3s ease;
+}
+.faq-icon::after{transform:translate(-50%,-50%) rotate(90deg);}
+.faq-item[open] .faq-icon{border-color:var(--accent);}
+.faq-item[open] .faq-icon::after{transform:translate(-50%,-50%) rotate(0deg);}
+.faq-answer{padding:0 58px 26px 4px;color:var(--pillars-ink-dim);font-size:1rem;line-height:1.7;max-width:72ch;}
+.faq-item[open] .faq-answer{animation:faqIn .35s ease;}
+@keyframes faqIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
+@media (max-width:640px){
+  .faq{padding:44px 0 52px;}
+  .faq-item summary{padding:20px 0;gap:16px;}
+  .faq-answer{padding:0 0 22px 0;font-size:0.96rem;}
+  .faq-icon{width:30px;height:30px;}
+}
+/* FAQ flare: a glowing blue beam sweeps along each row's bottom rule on
+   hover/open, in the same language as the hero eyebrow rules. */
+.faq-item{position:relative;}
+.faq-item::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;pointer-events:none;
+  background:linear-gradient(90deg,rgba(62,128,170,0) 0%,rgba(62,128,170,.55) 45%,#5fa3cf 92%,rgba(230,244,255,.95) 100%);
+  filter:drop-shadow(0 0 4px rgba(95,163,207,.75));
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .8s cubic-bezier(.2,.7,.2,1),opacity .4s ease;opacity:0;
+}
+.faq-item:hover::after,.faq-item[open]::after{transform:scaleX(1);opacity:1;}
+.faq-item[open] .faq-icon{box-shadow:0 0 0 6px rgba(62,128,170,.12),0 0 16px rgba(62,128,170,.35);}
+@media (prefers-reduced-motion:reduce){
+  .faq-item[open] .faq-answer{animation:none;}
+  .faq-item::after{transition:none;}
+}
 </style>
 <script type="application/ld+json">
 {
@@ -2125,6 +2182,54 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
   "@type": "WebSite",
   "name": "FLIGHTEC",
   "url": "https://flightec.co.za/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Which countries does Flightec operate in?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Flightec has established compliance arrangements for survey operations in South Africa, Namibia, Botswana and Lesotho. Our reach extends beyond these countries, and we welcome enquiries from across Africa and internationally. For projects in new locations, we assess local requirements and arrange the necessary approvals before operations begin."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What certifications and operational approvals does Flightec hold?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Flightec\u2019s South African aviation certifications and operational approvals cover beyond visual line of sight (BVLOS) flights, night operations and multi-drone surveys. They also provide for operations in controlled and restricted airspace, up to 1,500 feet, and near aerodromes, subject to the applicable permissions and operating conditions. These capabilities allow us to plan surveys across a wide range of environments, with country-specific and project-specific approvals arranged where required."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much does a drone geophysical survey cost?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The cost of a drone geophysical survey depends on the survey area, required data resolution, sensor selection and site location. Flight-line spacing, terrain, access and regulatory requirements also influence the scope and cost. Sharing your project boundaries and exploration objectives helps Flightec prepare a proposal matched to the information you need."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does an airborne survey take to complete?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Survey timelines include planning and approvals, mobilisation, fieldwork and data processing. The duration depends on the size of the area, flight-line spacing, terrain and weather, as well as the required deliverables. Aviation approvals can affect the start date, so involving Flightec early helps establish a realistic schedule for your exploration programme."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can geophysical surveys identify mineral deposits before drilling?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Geophysical surveys can identify variations in rock properties that help geologists map structures and prioritise exploration targets. Magnetic and radiometric data can strengthen the geological interpretation when assessed alongside mapping, sampling and existing drilling results. These surveys guide further investigation; drilling and laboratory analysis are still needed to confirm mineralisation and grade."
+      }
+    }
+  ]
 }
 </script>
 </head>
@@ -2437,6 +2542,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </div>
   </section>
+
+  <section id="faq" class="faq">
+    <div class="section-inner">
+      <p class="eyebrow center">FAQ</p>
+      <h2 class="center">Frequently asked questions.</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary><span>Which countries does Flightec operate in?</span><span class="faq-icon" aria-hidden="true"></span></summary>
+          <div class="faq-answer"><p>Flightec has established compliance arrangements for survey operations in South Africa, Namibia, Botswana and Lesotho. Our reach extends beyond these countries, and we welcome enquiries from across Africa and internationally. For projects in new locations, we assess local requirements and arrange the necessary approvals before operations begin.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary><span>What certifications and operational approvals does Flightec hold?</span><span class="faq-icon" aria-hidden="true"></span></summary>
+          <div class="faq-answer"><p>Flightec&rsquo;s South African aviation certifications and operational approvals cover beyond visual line of sight (BVLOS) flights, night operations and multi-drone surveys. They also provide for operations in controlled and restricted airspace, up to 1,500 feet, and near aerodromes, subject to the applicable permissions and operating conditions. These capabilities allow us to plan surveys across a wide range of environments, with country-specific and project-specific approvals arranged where required.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary><span>How much does a drone geophysical survey cost?</span><span class="faq-icon" aria-hidden="true"></span></summary>
+          <div class="faq-answer"><p>The cost of a drone geophysical survey depends on the survey area, required data resolution, sensor selection and site location. Flight-line spacing, terrain, access and regulatory requirements also influence the scope and cost. Sharing your project boundaries and exploration objectives helps Flightec prepare a proposal matched to the information you need.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary><span>How long does an airborne survey take to complete?</span><span class="faq-icon" aria-hidden="true"></span></summary>
+          <div class="faq-answer"><p>Survey timelines include planning and approvals, mobilisation, fieldwork and data processing. The duration depends on the size of the area, flight-line spacing, terrain and weather, as well as the required deliverables. Aviation approvals can affect the start date, so involving Flightec early helps establish a realistic schedule for your exploration programme.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary><span>Can geophysical surveys identify mineral deposits before drilling?</span><span class="faq-icon" aria-hidden="true"></span></summary>
+          <div class="faq-answer"><p>Geophysical surveys can identify variations in rock properties that help geologists map structures and prioritise exploration targets. Magnetic and radiometric data can strengthen the geological interpretation when assessed alongside mapping, sampling and existing drilling results. These surveys guide further investigation; drilling and laboratory analysis are still needed to confirm mineralisation and grade.</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer class="site-footer">
@@ -2456,7 +2590,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
       <div class="footer-col">
         <h5>Company</h5>
-        <nav class="footer-links"><a href="#about">About</a><a href="#operate">Where We Operate</a><a href="#contact">Contact</a></nav>
+        <nav class="footer-links"><a href="#about">About</a><a href="#operate">Where We Operate</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></nav>
       </div>
       <div class="footer-col">
         <h5>Services</h5>

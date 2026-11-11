@@ -2218,6 +2218,11 @@ html{scrollbar-color:#2a2f36 #0a0b0d;scrollbar-width:thin;}
   .nav-links a{font-size:0.72rem;letter-spacing:0.05em;}
   .nav .btn-nav{padding:11px 18px;}
 }
+/* Company profile download gate (reuses .indaba-modal styling). */
+.profile-modal-logo{width:170px;height:auto;display:block;position:relative;}
+.indaba-form .form-row--full{flex-basis:100%;}
+#profileFormSuccess .contact-download{margin-top:0;}
+@media (max-width:480px){ .profile-modal-logo{width:140px;} }
 /* Company profile download link under General Enquiries. */
 .contact-download{display:inline-flex;align-items:center;gap:10px;margin-top:20px;border-radius:8px;}
 .contact-download svg{flex:none;width:16px;height:16px;}
@@ -2526,7 +2531,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="contact-person">
           <p class="contact-person-role">General Enquiries</p>
           <a class="contact-person-line" href="mailto:info@flightec.co.za">info@flightec.co.za</a>
-          <a class="btn btn-primary contact-download" href="Flightec-Company-Profile.pdf" download="Flightec-Company-Profile.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2v8M4.5 6.5L8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Download our Company Profile</a>
+          <a class="btn btn-primary contact-download" data-profile-gate href="Flightec-Company-Profile.pdf" download="Flightec-Company-Profile.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2v8M4.5 6.5L8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Download our Company Profile</a>
         </div>
       </div>
 
@@ -2809,6 +2814,53 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="form-success" id="indabaFormSuccess" hidden>
           <p class="form-success-title">Thanks &mdash; we'll be in touch.</p>
           <p class="form-success-body">We've received your details and will reach out to confirm a time to meet at Mining Indaba 2027. If it's urgent, you can also reach us directly at <a href="mailto:nathan.archer@flightec.co.za">nathan.archer@flightec.co.za</a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Company profile download gate -- clicking "Download our Company
+     Profile" opens this instead of downloading straight away. Name, Company
+     and Email go to the same Formspree endpoint as the other forms (tagged
+     with their own _subject), and the PDF downloads once that succeeds.
+     Reuses the Mining Indaba popup's classes so the two look identical. -->
+<div class="indaba-modal profile-modal" id="profileModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="profileModalTitle">
+  <div class="indaba-modal-panel">
+    <button type="button" class="indaba-modal-close" id="profileModalClose" aria-label="Close"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    <div class="indaba-modal-scroll">
+      <div class="indaba-modal-banner">
+        <img src="img/logo-white.png" alt="FLIGHTEC" class="profile-modal-logo" loading="lazy">
+        <div class="indaba-modal-banner-meta">
+          <span>Company Profile</span>
+          <span>PDF &middot; 8 pages</span>
+        </div>
+      </div>
+      <div class="indaba-modal-body">
+        <h2 id="profileModalTitle">Download our Company Profile.</h2>
+        <p class="indaba-modal-lead">Enter your details below and your download will start straight away.</p>
+
+        <form class="indaba-form" id="profileForm">
+          <div class="form-row">
+            <label for="pf-name">Name &amp; Surname</label>
+            <input id="pf-name" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div class="form-row">
+            <label for="pf-company">Company</label>
+            <input id="pf-company" name="company" type="text" autocomplete="organization" required>
+          </div>
+          <div class="form-row form-row--full">
+            <label for="pf-email">Email</label>
+            <input id="pf-email" name="email" type="email" autocomplete="email" required>
+          </div>
+          <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+          <button type="submit" class="btn btn-primary btn-lg">Download Profile</button>
+          <p class="form-status" id="profileFormStatus" role="alert"></p>
+        </form>
+        <div class="form-success" id="profileFormSuccess" hidden>
+          <p class="form-success-title">Thanks, your download has started.</p>
+          <p class="form-success-body">If it doesn't start automatically, use the button below.</p>
+          <a class="btn btn-primary contact-download" id="profileDownloadLink" href="Flightec-Company-Profile.pdf" download="Flightec-Company-Profile.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2v8M4.5 6.5L8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Download Company Profile</a>
         </div>
       </div>
     </div>
@@ -3537,6 +3589,115 @@ function makeVisibilitySpy(items, onChange){
   }
   wireIndabaForm(form, document.getElementById('indabaFormStatus'), document.getElementById('indabaFormSuccess'), 'Popup');
   wireIndabaForm(document.getElementById('indabaInlineForm'), document.getElementById('indabaInlineStatus'), document.getElementById('indabaInlineSuccess'), 'Page section');
+})();
+
+// Company profile download gate -- "Download our Company Profile" opens a
+// short form (Name, Company, Email) instead of downloading directly. The
+// details go to the same Formspree endpoint as the other forms with their
+// own _subject line; on success the PDF downloads automatically, with a
+// backup download button shown in case the browser blocks the automatic
+// one. Without JavaScript the link still works as a plain download.
+(function(){
+  var modal = document.getElementById('profileModal');
+  var form = document.getElementById('profileForm');
+  if(!modal || !form) return;
+  var closeBtn = document.getElementById('profileModalClose');
+  var statusEl = document.getElementById('profileFormStatus');
+  var successEl = document.getElementById('profileFormSuccess');
+  var fileLink = document.getElementById('profileDownloadLink');
+  var submitBtn = form.querySelector('button[type="submit"]');
+  var submitBtnDefaultText = submitBtn ? submitBtn.textContent : '';
+  var ENDPOINT = 'https://formspree.io/f/mljdyjng';
+  var lastTrigger = null;
+
+  function open(trigger){
+    lastTrigger = trigger || null;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    var first = form.hidden ? fileLink : form.querySelector('input');
+    if(first) window.setTimeout(function(){ first.focus(); }, 300);
+  }
+  function close(){
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    if(lastTrigger) lastTrigger.focus();
+  }
+  function startDownload(){
+    var a = document.createElement('a');
+    a.href = fileLink.getAttribute('href');
+    a.setAttribute('download', 'Flightec-Company-Profile.pdf');
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+  function setError(msg){
+    if(statusEl){ statusEl.textContent = msg; statusEl.classList.add('is-error'); }
+  }
+  function clearError(){
+    if(statusEl){ statusEl.textContent = ''; statusEl.classList.remove('is-error'); }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-profile-gate]'), function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      open(btn);
+    });
+  });
+  closeBtn.addEventListener('click', close);
+  modal.addEventListener('click', function(e){ if(e.target === modal) close(); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && modal.classList.contains('is-open')) close();
+  });
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(form.classList.contains('is-submitting')) return;
+    clearError();
+
+    var data = {};
+    Array.prototype.forEach.call(form.elements, function(el){
+      if(!el.name) return;
+      data[el.name] = (el.value || '').trim();
+    });
+
+    var fd = new FormData();
+    fd.append('name', data.name || '');
+    fd.append('company', data.company || '');
+    fd.append('email', data.email || '');
+    fd.append('_subject', 'Company Profile Download' + (data.company ? ' — ' + data.company : ''));
+    fd.append('_gotcha', data._gotcha || '');
+    fd.append('source', 'Company profile download');
+
+    form.classList.add('is-submitting');
+    if(submitBtn){ submitBtn.textContent = 'Sending…'; }
+
+    fetch(ENDPOINT, {
+      method: 'POST',
+      body: fd,
+      headers: { 'Accept': 'application/json' }
+    }).then(function(res){
+      if(res.ok){
+        form.hidden = true;
+        if(successEl) successEl.hidden = false;
+        if(window.dataLayer) window.dataLayer.push({ event: 'company_profile_download' });
+        startDownload();
+      } else {
+        return res.json().catch(function(){ return null; }).then(function(body){
+          var msg = (body && body.errors && body.errors.length)
+            ? body.errors.map(function(e2){ return e2.message; }).join(', ')
+            : 'Something went wrong. Please try again, or email us at info@flightec.co.za for a copy.';
+          setError(msg);
+        });
+      }
+    }).catch(function(){
+      setError('Something went wrong. Please check your connection and try again, or email us at info@flightec.co.za for a copy.');
+    }).finally(function(){
+      form.classList.remove('is-submitting');
+      if(submitBtn){ submitBtn.textContent = submitBtnDefaultText; }
+    });
+  });
 })();
 
 // Calendly scheduling popup -- opens in the same visual "feel" as the
